@@ -48,6 +48,9 @@
       background: linear-gradient(45deg, #4A90E2, #50E3C2);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      /* Tambahan untuk meningkatkan keterbacaan */
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+      color: #4A90E2; /* fallback color */
     }
     .btn-copy {
       font-weight: 600;
@@ -75,6 +78,12 @@
       .display-4 {
         font-size: 2.5rem;
       }
+    }
+    /* Mengurangi ukuran hamburger icon */
+    .navbar-toggler-icon {
+      width: 20px;
+      height: 20px;
+      background-size: 20px 20px;
     }
   </style>
 </head>
