@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAYMENT - ZERO HOSTING</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <!-- Google Fonts (Poppins) -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+      color: #333;
+    }
+    .card-custom {
+      border-radius: 15px;
+      transition: transform 0.3s ease;
+    }
+    .card-custom:hover {
+      transform: translateY(-5px);
+    }
+    .card-custom .card-body {
+      background: rgba(255, 255, 255, 0.95);
+    }
+    .btn-copy {
+      font-weight: 600;
+    }
+    .marquee-custom {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 15px;
+      border-radius: 10px;
+    }
+    .header-gradient {
+      background: linear-gradient(45deg, #4CAF50, #2196F3);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+  </style>
+</head>
+<body>
+  <div class="container py-5">
+    <!-- Header -->
+    <header class="text-center mb-5">
+      <h1 class="header-gradient display-4">ZERODEV PAYMENT</h1>
+      <p class="lead">Secure Payment Gateway</p>
+    </header>
+    
+    <!-- Payment Cards -->
+    <div class="row g-4">
+      <!-- DANA Payment -->
+      <div class="col-md-6">
+        <div class="card card-custom shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title text-dark">DANA PAYMENT</h5>
+            <p class="card-text text-muted">A/N: TIXXX SUXXXXX</p>
+            <button class="btn btn-success btn-copy" onclick="copyPayment('081997715124', this)">
+              <i class="fas fa-copy"></i> COPY NUMBER
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- OVO Payment -->
+      <div class="col-md-6">
+        <div class="card card-custom shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title text-dark">OVO PAYMENT</h5>
+            <p class="card-text text-muted">A/N: TIXXX SUXXXXX</p>
+            <button class="btn btn-success btn-copy" onclick="copyPayment('081997715124', this)">
+              <i class="fas fa-copy"></i> COPY NUMBER
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- QRIS Payment -->
+      <div class="col-md-6">
+        <div class="card card-custom shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title text-dark">QRIS PAYMENT</h5>
+            <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#qrModal">
+              <i class="fas fa-qrcode"></i> SHOW QR CODE
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Warning -->
+      <div class="col-md-6">
+        <div class="card card-custom shadow-sm" style="background: #fff3e0;">
+          <div class="card-body">
+            <h5 class="card-title text-danger">⚠️ WAJIB KIRIM BUKTI TRANSFER!</h5>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Marquee -->
+    <div class="mt-5">
+      <marquee class="marquee-custom">
+        🚀 VinzzOfficial - Your Trusted Hosting Provider • VPS • Pterodactyl Panel • WhatsApp Bot Solutions
+      </marquee>
+    </div>
+  </div>
+  
+  <!-- QR Modal (Bootstrap Modal) -->
+  <div class="modal fade" id="qrModal" tabindex="-1" aria-labelledby="qrModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="qrModalLabel">QRIS PAYMENT</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center">
+          <img src="https://img101.pixhost.to/images/135/547324321_global-namaowner.jpg" alt="QR Code" class="img-fluid rounded">
+        </div>
+        <div class="modal-footer">
+          <a href="https://img101.pixhost.to/images/135/547324321_global-namaowner.jpg" download="qris-zerodev.png" class="btn btn-primary">
+            <i class="fas fa-download"></i> DOWNLOAD QR
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Bootstrap JS Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script>
+    function copyPayment(text, btn) {
+      navigator.clipboard.writeText(text).then(() => {
+        btn.classList.add('disabled');
+        btn.innerHTML = `<i class="fas fa-check"></i> COPIED!`;
+      });
+    }
+  </script>
+</body>
+</html>
