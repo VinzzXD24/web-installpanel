@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Instalasi Pterodactyl Panel</title>
+</head>
+<body>
+    <h1>Instalasi Pterodactyl Panel</h1>
+    <form id="installForm">
+        <input type="text" name="ipvps" placeholder="IP VPS" required>
+        <input type="password" name="password" placeholder="Password VPS" required>
+        <input type="text" name="domainpnl" placeholder="Domain Panel" required>
+        <input type="text" name="domainnode" placeholder="Domain Node" required>
+        <input type="text" name="ramvps" placeholder="RAM VPS (contoh: 8GB)" required>
+        <button type="submit">Mulai Instalasi</button>
+    </form>
+
+    <script>
+        document.getElementById('installForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const response = await fetch('/install', {
+                method: 'POST',
+                body: JSON.stringify(Object.fromEntries(formData)),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            const result = await response.json();
+            alert(result.message || result.error);
+        });
+    </script>
+</body>
+</html>
