@@ -85,14 +85,23 @@
         </div>
       </div>
       
-      <!-- QRIS Payment dengan Chevron -->
+      <!-- QRIS Payment (Inline QR Display) -->
       <div class="col-md-6">
         <div class="card card-custom">
           <div class="card-body">
             <h5 class="card-title text-primary">QRIS PAYMENT</h5>
-            <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#qrModal">
-              <i class="fas fa-chevron-down"></i> SHOW QR CODE
+            <button class="btn btn-outline-danger w-100 d-flex justify-content-between align-items-center" 
+                    type="button" data-bs-toggle="collapse" data-bs-target="#collapseQR" 
+                    aria-expanded="false" aria-controls="collapseQR">
+              <span>A/N : Warung Tresno Tea</span>
+              <i class="fas fa-chevron-down"></i>
             </button>
+            <div class="collapse mt-3" id="collapseQR">
+              <div class="p-3 bg-light rounded">
+                <img src="https://img101.pixhost.to/images/135/547324321_global-namaowner.jpg" 
+                     alt="QR Code" class="img-fluid d-block mx-auto">
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -112,26 +121,6 @@
       <marquee class="marquee-custom">
         🚀 VinzzOfficial - Your Trusted Hosting Provider • VPS • Pterodactyl Panel • WhatsApp Bot Solutions
       </marquee>
-    </div>
-  </div>
-  
-  <!-- QR Modal (Bootstrap Modal) -->
-  <div class="modal fade" id="qrModal" tabindex="-1" aria-labelledby="qrModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="qrModalLabel">QRIS PAYMENT</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body text-center">
-          <img src="https://img101.pixhost.to/images/135/547324321_global-namaowner.jpg" alt="QR Code" class="img-fluid rounded">
-        </div>
-        <div class="modal-footer">
-          <a href="https://img101.pixhost.to/images/135/547324321_global-namaowner.jpg" download="qris-zerodev.png" class="btn btn-primary">
-            <i class="fas fa-download"></i> DOWNLOAD QR
-          </a>
-        </div>
-      </div>
     </div>
   </div>
   
