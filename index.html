@@ -19,7 +19,8 @@
       font-family: 'Poppins', sans-serif;
       background: linear-gradient(135deg, #e0f7fa, #ffffff);
       color: #333;
-      padding-bottom: 60px; /* Ruang untuk footer */
+      /* Tambahkan padding-bottom yang cukup agar konten tidak tertutup footer */
+      padding-bottom: 100px;
     }
     .container {
       margin-top: 2rem;
@@ -51,6 +52,8 @@
       background: rgba(74, 144, 226, 0.1);
       padding: 15px;
       border-radius: 10px;
+      /* Tambahkan margin-bottom agar marquee tidak terlalu dekat footer */
+      margin-bottom: 20px;
     }
     footer {
       position: fixed;
@@ -62,7 +65,6 @@
       text-align: center;
       padding: 1rem 0;
     }
-    /* Media Query untuk perangkat kecil */
     @media (max-width: 576px) {
       .display-4 {
         font-size: 2.5rem;
