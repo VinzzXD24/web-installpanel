@@ -127,13 +127,12 @@
             </button>
             <div id="qrCodeDiv" style="display: none;" class="mt-3">
               <div class="p-3 bg-light rounded text-center">
-                <!-- Gunakan URL yang sama untuk gambar dan link download -->
                 <img src="https://uppimg.com/uploads/VinzzQris_public.jpeg" 
                      alt="QR Code" class="img-fluid d-block mx-auto">
                 <div class="mt-3">
-                  <a href="https://uppimg.com/uploads/VinzzQris_public.jpeg" download="qris-zerodev.png" class="btn btn-primary">
+                  <button onclick="downloadQR()" class="btn btn-primary">
                     <i class="fas fa-download"></i> Unduh QR
-                  </a>
+                  </button>
                 </div>
               </div>
             </div>
@@ -186,6 +185,26 @@
         qrDiv.style.display = "none";
         btn.innerHTML = `<span>A/N : Warung Tresno Tea</span><i class="fas fa-chevron-down"></i>`;
       }
+    }
+    
+    // Fungsi untuk mengunduh gambar QR secara langsung
+    function downloadQR() {
+      const imageUrl = "https://uppimg.com/uploads/VinzzQris_public.jpeg";
+      const filename = "qris-zerodev.png";
+      fetch(imageUrl, { mode: 'cors' })
+        .then(response => response.blob())
+        .then(blob => {
+          const blobUrl = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.style.display = 'none';
+          a.href = blobUrl;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(blobUrl);
+        })
+        .catch(() => alert("Gagal mengunduh QR Code."));
     }
   </script>
 </body>
