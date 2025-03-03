@@ -13,36 +13,44 @@
   <style>
     body {
       font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+      background: linear-gradient(135deg, #e0f7fa, #ffffff);
       color: #333;
+    }
+    .container {
+      margin-top: 2rem;
+      margin-bottom: 2rem;
     }
     .card-custom {
       border-radius: 15px;
-      transition: transform 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      border: none;
+      background: #fff;
     }
     .card-custom:hover {
       transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
     }
-    .card-custom .card-body {
-      background: rgba(255, 255, 255, 0.95);
+    .header-gradient {
+      background: linear-gradient(45deg, #4A90E2, #50E3C2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
     .btn-copy {
       font-weight: 600;
     }
+    .btn-copy:hover {
+      opacity: 0.9;
+    }
     .marquee-custom {
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(74, 144, 226, 0.1);
       padding: 15px;
       border-radius: 10px;
-    }
-    .header-gradient {
-      background: linear-gradient(45deg, #4CAF50, #2196F3);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
     }
   </style>
 </head>
 <body>
-  <div class="container py-5">
+  <div class="container py-4">
     <!-- Header -->
     <header class="text-center mb-5">
       <h1 class="header-gradient display-4">ZERODEV PAYMENT</h1>
@@ -53,11 +61,11 @@
     <div class="row g-4">
       <!-- DANA Payment -->
       <div class="col-md-6">
-        <div class="card card-custom shadow-sm">
+        <div class="card card-custom">
           <div class="card-body">
-            <h5 class="card-title text-dark">DANA PAYMENT</h5>
+            <h5 class="card-title text-primary">DANA PAYMENT</h5>
             <p class="card-text text-muted">A/N: TIXXX SUXXXXX</p>
-            <button class="btn btn-success btn-copy" onclick="copyPayment('081997715124', this)">
+            <button class="btn btn-outline-primary btn-copy" onclick="copyPayment('081997715124', this)">
               <i class="fas fa-copy"></i> COPY NUMBER
             </button>
           </div>
@@ -66,11 +74,11 @@
       
       <!-- OVO Payment -->
       <div class="col-md-6">
-        <div class="card card-custom shadow-sm">
+        <div class="card card-custom">
           <div class="card-body">
-            <h5 class="card-title text-dark">OVO PAYMENT</h5>
+            <h5 class="card-title text-primary">OVO PAYMENT</h5>
             <p class="card-text text-muted">A/N: TIXXX SUXXXXX</p>
-            <button class="btn btn-success btn-copy" onclick="copyPayment('081997715124', this)">
+            <button class="btn btn-outline-primary btn-copy" onclick="copyPayment('081997715124', this)">
               <i class="fas fa-copy"></i> COPY NUMBER
             </button>
           </div>
@@ -79,10 +87,10 @@
       
       <!-- QRIS Payment -->
       <div class="col-md-6">
-        <div class="card card-custom shadow-sm">
+        <div class="card card-custom">
           <div class="card-body">
-            <h5 class="card-title text-dark">QRIS PAYMENT</h5>
-            <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#qrModal">
+            <h5 class="card-title text-primary">QRIS PAYMENT</h5>
+            <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#qrModal">
               <i class="fas fa-qrcode"></i> SHOW QR CODE
             </button>
           </div>
@@ -91,7 +99,7 @@
       
       <!-- Warning -->
       <div class="col-md-6">
-        <div class="card card-custom shadow-sm" style="background: #fff3e0;">
+        <div class="card card-custom" style="background: #fff3e0;">
           <div class="card-body">
             <h5 class="card-title text-danger">⚠️ WAJIB KIRIM BUKTI TRANSFER!</h5>
           </div>
