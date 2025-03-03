@@ -11,10 +11,21 @@
   <!-- Google Fonts (Poppins) -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
+    /* Atur tinggi penuh untuk html dan body */
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
     body {
+      display: flex;
+      flex-direction: column;
       font-family: 'Poppins', sans-serif;
       background: linear-gradient(135deg, #e0f7fa, #ffffff);
       color: #333;
+    }
+    /* Bagian konten akan mengisi ruang yang tersisa */
+    .content {
+      flex: 1;
     }
     .container {
       margin-top: 2rem;
@@ -60,85 +71,88 @@
   </style>
 </head>
 <body>
-  <div class="container py-4">
-    <!-- Header -->
-    <header class="text-center mb-5">
-      <h1 class="header-gradient display-4">ZERODEV PAYMENT</h1>
-      <p class="lead">Secure Payment Gateway</p>
-    </header>
-    
-    <!-- Payment Cards -->
-    <div class="row g-4">
-      <!-- DANA Payment -->
-      <div class="col-12 col-md-6">
-        <div class="card card-custom">
-          <div class="card-body">
-            <h5 class="card-title text-primary">DANA PAYMENT</h5>
-            <p class="card-text text-muted">A/N: TIXXX SUXXXXX</p>
-            <button class="btn btn-outline-primary btn-copy" onclick="copyPayment('081997715124', this)">
-              <i class="fas fa-copy"></i> COPY NUMBER
-            </button>
+  <!-- Bagian konten utama -->
+  <div class="content">
+    <div class="container py-4">
+      <!-- Header -->
+      <header class="text-center mb-5">
+        <h1 class="header-gradient display-4">ZERODEV PAYMENT</h1>
+        <p class="lead">Secure Payment Gateway</p>
+      </header>
+      
+      <!-- Payment Cards -->
+      <div class="row g-4">
+        <!-- DANA Payment -->
+        <div class="col-12 col-md-6">
+          <div class="card card-custom">
+            <div class="card-body">
+              <h5 class="card-title text-primary">DANA PAYMENT</h5>
+              <p class="card-text text-muted">A/N: TIXXX SUXXXXX</p>
+              <button class="btn btn-outline-primary btn-copy" onclick="copyPayment('081997715124', this)">
+                <i class="fas fa-copy"></i> COPY NUMBER
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-      
-      <!-- OVO Payment -->
-      <div class="col-12 col-md-6">
-        <div class="card card-custom">
-          <div class="card-body">
-            <h5 class="card-title text-primary">OVO PAYMENT</h5>
-            <p class="card-text text-muted">A/N: TIXXX SUXXXXX</p>
-            <button class="btn btn-outline-primary btn-copy" onclick="copyPayment('081997715124', this)">
-              <i class="fas fa-copy"></i> COPY NUMBER
-            </button>
+        
+        <!-- OVO Payment -->
+        <div class="col-12 col-md-6">
+          <div class="card card-custom">
+            <div class="card-body">
+              <h5 class="card-title text-primary">OVO PAYMENT</h5>
+              <p class="card-text text-muted">A/N: TIXXX SUXXXXX</p>
+              <button class="btn btn-outline-primary btn-copy" onclick="copyPayment('081997715124', this)">
+                <i class="fas fa-copy"></i> COPY NUMBER
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-      
-      <!-- QRIS Payment (Toggle QR Inline) -->
-      <div class="col-12 col-md-6">
-        <div class="card card-custom">
-          <div class="card-body">
-            <h5 class="card-title text-primary">QRIS PAYMENT</h5>
-            <button id="qrToggleBtn" class="btn btn-outline-primary w-100 d-flex justify-content-between align-items-center" 
-                    type="button" onclick="toggleQRCode()">
-              <span>A/N : Warung Tresno Tea</span>
-              <i class="fas fa-chevron-down"></i>
-            </button>
-            <div id="qrCodeDiv" style="display: none;" class="mt-3">
-              <div class="p-3 bg-light rounded text-center">
-                <img src="https://img101.pixhost.to/images/135/547324321_global-namaowner.jpg" 
-                     alt="QR Code" class="img-fluid d-block mx-auto">
-                <div class="mt-3">
-                  <a href="https://img101.pixhost.to/images/135/547324321_global-namaowner.jpg" download="qris-zerodev.png" class="btn btn-primary">
-                    <i class="fas fa-download"></i> Unduh QR
-                  </a>
+        
+        <!-- QRIS Payment (Toggle QR Inline) -->
+        <div class="col-12 col-md-6">
+          <div class="card card-custom">
+            <div class="card-body">
+              <h5 class="card-title text-primary">QRIS PAYMENT</h5>
+              <button id="qrToggleBtn" class="btn btn-outline-primary w-100 d-flex justify-content-between align-items-center" 
+                      type="button" onclick="toggleQRCode()">
+                <span>A/N : Warung Tresno Tea</span>
+                <i class="fas fa-chevron-down"></i>
+              </button>
+              <div id="qrCodeDiv" style="display: none;" class="mt-3">
+                <div class="p-3 bg-light rounded text-center">
+                  <img src="https://img101.pixhost.to/images/135/547324321_global-namaowner.jpg" 
+                       alt="QR Code" class="img-fluid d-block mx-auto">
+                  <div class="mt-3">
+                    <a href="https://img101.pixhost.to/images/135/547324321_global-namaowner.jpg" download="qris-zerodev.png" class="btn btn-primary">
+                      <i class="fas fa-download"></i> Unduh QR
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      
-      <!-- Warning -->
-      <div class="col-12 col-md-6">
-        <div class="card card-custom" style="background: #fff3e0;">
-          <div class="card-body">
-            <h5 class="card-title text-danger">⚠️ WAJIB KIRIM BUKTI TRANSFER!</h5>
+        
+        <!-- Warning -->
+        <div class="col-12 col-md-6">
+          <div class="card card-custom" style="background: #fff3e0;">
+            <div class="card-body">
+              <h5 class="card-title text-danger">⚠️ WAJIB KIRIM BUKTI TRANSFER!</h5>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-    
-    <!-- Marquee -->
-    <div class="mt-5">
-      <marquee class="marquee-custom">
-        🚀 VinzzOfficial - Your Trusted Hosting Provider • VPS • Pterodactyl Panel • WhatsApp Bot Solutions
-      </marquee>
+      
+      <!-- Marquee -->
+      <div class="mt-5">
+        <marquee class="marquee-custom">
+          🚀 VinzzOfficial - Your Trusted Hosting Provider • VPS • Pterodactyl Panel • WhatsApp Bot Solutions
+        </marquee>
+      </div>
     </div>
   </div>
   
-  <!-- Footer -->
+  <!-- Footer yang selalu berada di paling bawah -->
   <footer class="text-center py-3">
     <p class="mb-0">Vinzz Official Since 2022-2025</p>
   </footer>
