@@ -51,6 +51,12 @@
       background: #f8f9fa;
       border-top: 1px solid #e9ecef;
     }
+    /* Media Query untuk perangkat kecil */
+    @media (max-width: 576px) {
+      .display-4 {
+        font-size: 2.5rem;
+      }
+    }
   </style>
 </head>
 <body>
@@ -64,7 +70,7 @@
     <!-- Payment Cards -->
     <div class="row g-4">
       <!-- DANA Payment -->
-      <div class="col-md-6">
+      <div class="col-12 col-md-6">
         <div class="card card-custom">
           <div class="card-body">
             <h5 class="card-title text-primary">DANA PAYMENT</h5>
@@ -77,7 +83,7 @@
       </div>
       
       <!-- OVO Payment -->
-      <div class="col-md-6">
+      <div class="col-12 col-md-6">
         <div class="card card-custom">
           <div class="card-body">
             <h5 class="card-title text-primary">OVO PAYMENT</h5>
@@ -90,7 +96,7 @@
       </div>
       
       <!-- QRIS Payment (Toggle QR Inline) -->
-      <div class="col-md-6">
+      <div class="col-12 col-md-6">
         <div class="card card-custom">
           <div class="card-body">
             <h5 class="card-title text-primary">QRIS PAYMENT</h5>
@@ -115,7 +121,7 @@
       </div>
       
       <!-- Warning -->
-      <div class="col-md-6">
+      <div class="col-12 col-md-6">
         <div class="card card-custom" style="background: #fff3e0;">
           <div class="card-body">
             <h5 class="card-title text-danger">⚠️ WAJIB KIRIM BUKTI TRANSFER!</h5>
