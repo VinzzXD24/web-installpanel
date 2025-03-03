@@ -44,12 +44,13 @@
       background: none;
       border: none;
     }
-    /* Supaya hamburger dan "VINZZ PAYMENT" sejajar di kiri */
+    /* Container khusus navbar (hamburger + teks) */
     .nav-container {
       display: flex;
       align-items: center;
       justify-content: flex-start;
       padding: 0.5rem 1rem;
+      margin-top: 1rem; /* Tambahkan jarak atas agar tidak terlalu dempet */
     }
     /* Tombol hamburger transparan, tanpa border */
     .navbar-toggler {
@@ -232,8 +233,7 @@
 
   <!-- Konten Halaman -->
   <div class="container py-4">
-    <!-- Header Besar (jika masih ingin menampilkan) -->
-    <!--
+    <!-- (Opsional) Header besar lagi kalau ingin. Hapus jika tidak perlu.
     <header class="text-center mb-5">
       <h1 class="header-gradient display-4">VINZZ PAYMENT</h1>
       <p class="lead">Secure Payment Gateway</p>
