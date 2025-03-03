@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>PAYMENT - VINZZ OFFICIAL</title>
-  <!-- Favicon dengan ukuran 32x32 -->
+  <!-- Favicon -->
   <link rel="icon" href="https://i.upimg.com/yHfVGNKK5" type="image/png" sizes="32x32">
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -21,36 +21,34 @@
       font-family: 'Poppins', sans-serif;
       background: linear-gradient(135deg, #e0f7fa, #ffffff);
       color: #333;
-      padding-bottom: 100px; /* agar konten tidak tertutup footer */
+      padding-bottom: 100px;
     }
-    /* Navbar */
+    /* Navbar tanpa fixed-top agar tidak menutupi header */
     .navbar {
       box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
-    /* Tambahkan padding-top pada container agar tidak tertutup navbar fixed */
     .container {
       margin-top: 2rem;
       margin-bottom: 2rem;
-      padding-top: 70px;
+      padding-top: 20px;
     }
     .card-custom {
       border-radius: 15px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       transition: transform 0.3s ease, box-shadow 0.3s ease;
       border: none;
       background: #fff;
     }
     .card-custom:hover {
       transform: translateY(-5px);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
     }
     .header-gradient {
       background: linear-gradient(45deg, #4A90E2, #50E3C2);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      /* Tambahan untuk meningkatkan keterbacaan */
-      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
-      color: #4A90E2; /* fallback color */
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+      color: #4A90E2;
     }
     .btn-copy {
       font-weight: 600;
@@ -59,37 +57,36 @@
       opacity: 0.9;
     }
     .marquee-custom {
-      background: rgba(74, 144, 226, 0.1);
+      background: rgba(74,144,226,0.1);
       padding: 15px;
       border-radius: 10px;
       margin-bottom: 20px;
     }
     footer {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      background: #f8f9fa;
-      border-top: 1px solid #e9ecef;
       text-align: center;
       padding: 1rem 0;
+      background: #f8f9fa;
+      border-top: 1px solid #e9ecef;
     }
     @media (max-width: 576px) {
       .display-4 {
         font-size: 2.5rem;
       }
     }
-    /* Mengurangi ukuran hamburger icon */
+    /* Membuat hamburger icon lebih kecil */
+    .navbar-toggler {
+      padding: 5px 8px;
+    }
     .navbar-toggler-icon {
-      width: 20px;
-      height: 20px;
-      background-size: 20px 20px;
+      width: 18px;
+      height: 18px;
+      background-size: 18px 18px;
     }
   </style>
 </head>
 <body>
-  <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+  <!-- Navbar tanpa fixed-top -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container">
       <!-- Hamburger Toggle -->
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" 
@@ -170,7 +167,7 @@
         </div>
       </div>
       
-      <!-- QRIS Payment (Toggle QR Inline) -->
+      <!-- QRIS Payment -->
       <div class="col-12 col-md-6">
         <div class="card card-custom">
           <div class="card-body">
@@ -198,7 +195,7 @@
         </div>
       </div>
       
-      <!-- Warning -->
+      <!-- Warning Card -->
       <div class="col-12 col-md-6">
         <div class="card card-custom" style="background: #fff3e0;">
           <div class="card-body">
@@ -216,12 +213,11 @@
     </div>
   </div>
   
-  <!-- Footer -->
   <footer class="text-center">
     <p class="mb-0">Vinzz Official Since 2022-2025</p>
   </footer>
   
-  <!-- Bootstrap JS Bundle dengan Popper -->
+  <!-- Bootstrap JS Bundle -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   
   <script>
@@ -232,7 +228,6 @@
       });
     }
     
-    // Fungsi toggle untuk menampilkan/menghilangkan QR code
     function toggleQRCode() {
       var qrDiv = document.getElementById("qrCodeDiv");
       var btn = document.getElementById("qrToggleBtn");
@@ -245,7 +240,6 @@
       }
     }
     
-    // Fungsi untuk mengunduh gambar QR secara langsung dengan nama file "qrisvinzz.png"
     function downloadQR() {
       const imageUrl = "https://raw.githubusercontent.com/VinzzXD24/web-installpanel/refs/heads/main/qr_ID1024361074577_03.03.25_174099403_1740994038246.jpeg";
       const filename = "qrisvinzz.png";
