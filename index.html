@@ -27,20 +27,22 @@
     .navbar {
       box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
-    /* Menghilangkan background dan border di tombol hamburger */
+    /* Tombol hamburger: hilangkan background dan border */
     .navbar-toggler {
       border: none;
       background: transparent;
       padding: 5px 8px;
     }
-    /* Custom hamburger icon tanpa warna di sekelilingnya */
+    /* Custom hamburger icon: hanya tiga garis tanpa background */
     .navbar-toggler-icon {
       width: 18px;
       height: 18px;
+      background: none;
       background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(0,0,0,0.7)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
       background-size: 18px 18px;
+      background-repeat: no-repeat;
     }
-    /* Atur lebar offcanvas (menu samping) */
+    /* Offcanvas settings */
     .offcanvas {
       width: 250px;
     }
@@ -101,11 +103,10 @@
   <!-- Navbar Offcanvas -->
   <nav class="navbar navbar-light bg-light">
     <div class="container">
-      <!-- Tombol Hamburger yang membuka offcanvas menu dari samping -->
+      <!-- Tombol Hamburger untuk membuka offcanvas menu dari samping -->
       <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar">
         <span class="navbar-toggler-icon"></span>
       </button>
-      <!-- Optional: Tambahkan brand di sini -->
       <a class="navbar-brand" href="#">Vinzz Official</a>
       <!-- Offcanvas Menu -->
       <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
