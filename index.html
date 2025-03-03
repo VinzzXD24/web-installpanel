@@ -19,8 +19,7 @@
       font-family: 'Poppins', sans-serif;
       background: linear-gradient(135deg, #e0f7fa, #ffffff);
       color: #333;
-      /* Tambahkan padding-bottom yang cukup agar konten tidak tertutup footer */
-      padding-bottom: 100px;
+      padding-bottom: 100px; /* agar konten tidak tertutup footer */
     }
     .container {
       margin-top: 2rem;
@@ -52,7 +51,6 @@
       background: rgba(74, 144, 226, 0.1);
       padding: 15px;
       border-radius: 10px;
-      /* Tambahkan margin-bottom agar marquee tidak terlalu dekat footer */
       margin-bottom: 20px;
     }
     footer {
@@ -86,22 +84,28 @@
       <div class="col-12 col-md-6">
         <div class="card card-custom">
           <div class="card-body">
-            <h5 class="card-title text-primary">DANA PAYMENT</h5>
-            <p class="card-text text-muted">A/N: TIXXX SUXXXXX</p>
-            <button class="btn btn-outline-primary btn-copy" onclick="copyPayment('081997715124', this)">
+            <div class="text-center mb-3">
+              <img src="https://uppimg.com/uploads/LogoDana_public.png" alt="Dana Logo" style="max-width: 80px;">
+            </div>
+            <h5 class="card-title text-primary text-center">DANA PAYMENT</h5>
+            <p class="card-text text-muted text-center">A/N: TIXXX SUXXXXX</p>
+            <button class="btn btn-outline-primary btn-copy w-100" onclick="copyPayment('081997715124', this)">
               <i class="fas fa-copy"></i> COPY NUMBER
             </button>
           </div>
         </div>
       </div>
       
-      <!-- OVO Payment -->
+      <!-- GOPAY Payment -->
       <div class="col-12 col-md-6">
         <div class="card card-custom">
           <div class="card-body">
-            <h5 class="card-title text-primary">OVO PAYMENT</h5>
-            <p class="card-text text-muted">A/N: TIXXX SUXXXXX</p>
-            <button class="btn btn-outline-primary btn-copy" onclick="copyPayment('081997715124', this)">
+            <div class="text-center mb-3">
+              <img src="https://uppimg.com/uploads/LogoGopay_public.png" alt="Gopay Logo" style="max-width: 80px;">
+            </div>
+            <h5 class="card-title text-primary text-center">GOPAY PAYMENT</h5>
+            <p class="card-text text-muted text-center">A/N: TIXXX SUXXXXX</p>
+            <button class="btn btn-outline-primary btn-copy w-100" onclick="copyPayment('081997715124', this)">
               <i class="fas fa-copy"></i> COPY NUMBER
             </button>
           </div>
@@ -112,7 +116,10 @@
       <div class="col-12 col-md-6">
         <div class="card card-custom">
           <div class="card-body">
-            <h5 class="card-title text-primary">QRIS PAYMENT</h5>
+            <div class="text-center mb-3">
+              <img src="https://uppimg.com/uploads/LogoQris_public.png" alt="QRIS Logo" style="max-width: 80px;">
+            </div>
+            <h5 class="card-title text-primary text-center">QRIS PAYMENT</h5>
             <button id="qrToggleBtn" class="btn btn-outline-primary w-100 d-flex justify-content-between align-items-center" 
                     type="button" onclick="toggleQRCode()">
               <span>A/N : Warung Tresno Tea</span>
@@ -137,7 +144,7 @@
       <div class="col-12 col-md-6">
         <div class="card card-custom" style="background: #fff3e0;">
           <div class="card-body">
-            <h5 class="card-title text-danger">⚠️ WAJIB KIRIM BUKTI TRANSFER!</h5>
+            <h5 class="card-title text-danger text-center">⚠️ WAJIB KIRIM BUKTI TRANSFER!</h5>
           </div>
         </div>
       </div>
