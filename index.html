@@ -23,9 +23,15 @@
       color: #333;
       padding-bottom: 100px; /* agar konten tidak tertutup footer */
     }
+    /* Navbar */
+    .navbar {
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    /* Tambahkan padding-top pada container agar tidak tertutup navbar fixed */
     .container {
       margin-top: 2rem;
       margin-bottom: 2rem;
+      padding-top: 70px;
     }
     .card-custom {
       border-radius: 15px;
@@ -73,6 +79,47 @@
   </style>
 </head>
 <body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+    <div class="container">
+      <!-- Hamburger Toggle -->
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" 
+              aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <!-- Navbar Links -->
+      <div class="collapse navbar-collapse" id="navbarContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link" href="#">Home</a>
+          </li>
+          <!-- Dropdown Saluran -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="saluranDropdown" role="button" 
+               data-bs-toggle="dropdown" aria-expanded="false">
+              Saluran
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="saluranDropdown">
+              <li><a class="dropdown-item" href="https://whatsapp.com/channel/0029VaiODFU9WtByu5Zv2d3K" target="_blank">Vinzz Official</a></li>
+              <li><a class="dropdown-item" href="https://whatsapp.com/channel/0029Vaw6UlfI1rcaQCNZCA0s" target="_blank">Saluran Free Website</a></li>
+            </ul>
+          </li>
+          <!-- Dropdown Saran -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="saranDropdown" role="button" 
+               data-bs-toggle="dropdown" aria-expanded="false">
+              Saran
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="saranDropdown">
+              <li><a class="dropdown-item" href="https://wa.me/6285179963877" target="_blank">WhatsApp</a></li>
+              <li><a class="dropdown-item" href="https://t.me/vinzzofficisl" target="_blank">Telegram</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  
   <div class="container py-4">
     <!-- Header -->
     <header class="text-center mb-5">
