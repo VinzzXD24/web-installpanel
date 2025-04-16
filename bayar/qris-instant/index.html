@@ -10,21 +10,32 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
   <style>
     /* Pertahankan CSS sebelumnya */
-    html, body { height: 100%; margin: 0; padding: 0; }
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
     body {
       font-family: "Poppins", sans-serif;
       background: linear-gradient(135deg, #e0f7fa, #ffffff);
       color: #333;
       padding-bottom: 100px;
     }
-    .nav-container { display: flex; align-items: center; padding: 0.5rem 1rem; margin-top: 1rem; }
+    .nav-container {
+      display: flex;
+      align-items: center;
+      padding: 0.5rem 1rem;
+      margin-top: 1rem;
+    }
     .card-custom {
       border-radius: 15px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       transition: transform 0.3s ease;
       background: #fff;
     }
-    .card-custom:hover { transform: translateY(-5px); }
+    .card-custom:hover {
+      transform: translateY(-5px);
+    }
     .header-gradient {
       background: linear-gradient(45deg, #4a90e2, #50e3c2);
       -webkit-background-clip: text;
@@ -35,8 +46,26 @@
       color: #dc3545;
       font-weight: 600;
     }
-    #qrContainer { transition: all 0.3s ease; }
-    .fee-alert { background: #fff3e0; border-left: 4px solid #ff9100; }
+    #qrContainer {
+      transition: all 0.3s ease;
+    }
+    .fee-alert {
+      background: #fff3e0;
+      border-left: 4px solid #ff9100;
+    }
+    /* Style Status */
+    .status-pending {
+      color: #ffc107; /* kuning */
+      font-weight: bold;
+    }
+    .status-success {
+      color: #28a745; /* hijau */
+      font-weight: bold;
+    }
+    .status-failed {
+      color: #dc3545; /* merah */
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -86,7 +115,7 @@
         <!-- Tampilan QR dan Status Pembayaran -->
         <div id="qrContainer" class="card card-custom" style="display: none;">
           <div class="card-body text-center">
-            <!-- Status Payment ditampilkan di sini -->
+            <!-- Tampilan status pembayaran -->
             <div id="paymentStatus" class="mb-3"></div>
             <img id="qrImage" src="" class="img-fluid mb-3" alt="QR Code">
             <div class="countdown" id="countdown"></div>
@@ -120,6 +149,15 @@
       document.getElementById('feeAmount').textContent = fee.toLocaleString('id-ID');
       document.getElementById('receivedAmount').textContent = received.toLocaleString('id-ID');
     });
+
+    // Fungsi untuk mendapatkan class status berdasarkan nilai status
+    function getStatusClass(status) {
+      const s = status.toLowerCase();
+      if(s === 'pending') return 'status-pending';
+      if(s === 'success') return 'status-success';
+      if(s === 'failed' || s === 'gagal' || s === 'expired') return 'status-failed';
+      return '';
+    }
 
     // Submit form pembayaran
     document.getElementById('paymentForm').addEventListener('submit', async (e) => {
@@ -164,8 +202,9 @@
     function showQRCode() {
       document.getElementById('qrContainer').style.display = 'block';
       document.getElementById('qrImage').src = paymentData.qr_image_url;
-      // Tampilkan status payment (contoh: pending)
-      document.getElementById('paymentStatus').innerHTML = `<strong>Status Pembayaran:</strong> ${paymentData.status}`;
+      // Tampilkan status pembayaran dengan class warna sesuai
+      const statusClass = getStatusClass(paymentData.status);
+      document.getElementById('paymentStatus').innerHTML = `<strong>Status Pembayaran:</strong> <span class="${statusClass}">${paymentData.status}</span>`;
       document.getElementById('paymentForm').reset();
     }
 
@@ -180,8 +219,8 @@
         if(distance < 0) {
           clearInterval(intervalId);
           document.getElementById('countdown').innerHTML = "Waktu pembayaran telah habis";
-          // Update status apabila waktu habis
-          document.getElementById('paymentStatus').innerHTML = `<strong>Status Pembayaran:</strong> expired`;
+          // Update status menjadi expired/gagal dan tampilkan dengan warna merah
+          document.getElementById('paymentStatus').innerHTML = `<strong>Status Pembayaran:</strong> <span class="status-failed">expired</span>`;
           return;
         }
 
@@ -212,7 +251,6 @@
         if(data.status === 'success') {
           clearInterval(intervalId);
           document.getElementById('qrContainer').style.display = 'none';
-          // Update tampilan status pembayaran setelah pembatalan
           alert('Pembayaran berhasil dibatalkan');
           paymentData = null;
         }
