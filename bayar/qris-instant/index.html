@@ -2,6 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bayar QRIS Instant</title>
   <style>
     html,
@@ -126,6 +127,8 @@
     }
     .qr-image img {
       max-width: 200px;
+      width: 100%;
+      height: auto;
     }
     /* Footer Styles */
     footer {
@@ -136,6 +139,14 @@
       position: fixed;
       bottom: 0;
       width: 100%;
+    }
+    @media (max-width: 576px) {
+      .header-gradient {
+        font-size: 1.5rem;
+      }
+      button {
+        font-size: 14px;
+      }
     }
   </style>
 </head>
@@ -210,11 +221,13 @@
 
     // Membuat deposit baru dengan nominal tertentu
     async function createDeposit(nominal) {
+      // Membuat reff_id unik agar tidak terjadi duplikasi
+      const uniqueReffId = `deposit-forestapi-${Date.now()}`;
       const data = {
         nominal: nominal,
         method: "QRISFAST",
         fee_by_customer: "false",
-        reff_id: "deposit-forestapi",
+        reff_id: uniqueReffId,
         api_key: API_KEY
       };
       try {
@@ -235,7 +248,8 @@
           `;
           document.getElementById("cancel-deposit").style.display = "block";
         } else {
-          document.getElementById("message").innerText = "Gagal membuat deposit.";
+          console.error("Gagal membuat deposit:", result);
+          document.getElementById("message").innerText = `Gagal membuat deposit: ${result.message}`;
         }
       } catch (err) {
         console.error("Error membuat deposit:", err);
@@ -264,7 +278,8 @@
           document.getElementById("cancel-deposit").style.display = "none";
           currentDepositId = null;
         } else {
-          document.getElementById("message").innerText = "Gagal membatalkan deposit.";
+          console.error("Gagal membatalkan deposit:", result);
+          document.getElementById("message").innerText = `Gagal membatalkan deposit: ${result.message}`;
         }
       } catch (err) {
         console.error("Error membatalkan deposit:", err);
