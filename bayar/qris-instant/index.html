@@ -1,355 +1,177 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>QRIS INSTANT - VINZZ OFFICIAL</title>
-  <link rel="icon" href="https://i.upimg.com/yHfVGNKK5" type="image/png" sizes="32x32" />
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <meta charset="UTF-8">
+  <title>QRIS Invoice | VINZZ PPOB</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
   <style>
-    html, body {
-      height: 100%;
-      margin: 0;
-      padding: 0;
-    }
     body {
-      font-family: "Poppins", sans-serif;
-      background: linear-gradient(135deg, #e0f7fa, #ffffff);
-      color: #333;
-      padding-bottom: 100px;
+      font-family: 'Segoe UI', sans-serif;
+      background: #f9f9f9;
+      margin: 0;
+      padding: 1rem;
     }
-    .nav-container {
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.1);
+    }
+    .qris-popup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.6);
       display: flex;
       align-items: center;
-      padding: 0.5rem 1rem;
-      margin-top: 1rem;
+      justify-content: center;
+      z-index: 9999;
     }
-    .card-custom {
-      border-radius: 15px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      transition: transform 0.3s ease;
-      background: #fff;
+    .qris-box {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      position: relative;
     }
-    .card-custom:hover {
-      transform: translateY(-5px);
+    .badge-status {
+      padding: 4px 10px;
+      border-radius: 6px;
+      color: white;
+      font-size: 0.9rem;
+      display: inline-block;
+      margin-bottom: 1rem;
     }
-    .header-gradient {
-      background: linear-gradient(45deg, #4a90e2, #50e3c2);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+    .badge-pending { background-color: #ffc107; color: #000; }
+    .badge-success { background-color: #28a745; }
+    .badge-failed  { background-color: #dc3545; }
+    .btn {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: 0.2s;
     }
-    .countdown {
+    .btn-primary {
+      background: #007bff;
+      color: white;
+    }
+    .btn-danger {
+      background: #dc3545;
+      color: white;
+    }
+    .btn-close-popup {
+      position: absolute;
+      right: 12px;
+      top: 12px;
       font-size: 1.2rem;
-      color: #dc3545;
-      font-weight: 600;
+      cursor: pointer;
     }
-    #qrContainer {
-      transition: all 0.3s ease;
-    }
-    .fee-alert {
-      background: #fff3e0;
-      border-left: 4px solid #ff9100;
-    }
-    /* Status Styles */
-    .status-pending {
-      color: #ffc107;
-      font-weight: bold;
-    }
-    .status-success {
-      color: #28a745;
-      font-weight: bold;
-    }
-    .status-failed {
+    #timer {
       color: #dc3545;
       font-weight: bold;
-    }
-    /* Toast Styles */
-    #toastContainer {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 1055;
+      margin-top: 1rem;
     }
   </style>
 </head>
 <body>
-  <!-- Navbar -->
-  <nav>
-    <div class="nav-container">
-      <a href="/" class="btn btn-link text-decoration-none">
-        <i class="fas fa-arrow-left"></i>
-      </a>
-      <h1 class="header-gradient fs-4 m-0">QRIS INSTANT</h1>
-    </div>
-  </nav>
 
-  <div class="container py-4">
-    <div class="row justify-content-center">
-      <div class="col-12 col-md-6">
-        <div class="card card-custom mb-4">
-          <div class="card-body">
-            <form id="paymentForm">
-              <div class="mb-3">
-                <label class="form-label">Nominal Pembayaran</label>
-                <input 
-                  type="number" 
-                  class="form-control"
-                  id="nominalInput"
-                  min="500"
-                  required
-                  placeholder="Minimal Rp 500"
-                >
-              </div>
-              
-              <div class="alert fee-alert mb-3">
-                <small>
-                  <i class="fas fa-info-circle"></i> 
-                  Akan diterima: Rp <span id="receivedAmount">0</span>
-                  (Biaya: Rp <span id="feeAmount">0</span>)
-                </small>
-              </div>
+<div class="container">
+  <h2>QRIS INVOICE</h2>
+  <p>Nominal Pembayaran</p>
+  <input type="number" id="nominal" placeholder="Minimal Rp 500" style="width: 100%; padding: 8px; margin-bottom: 1rem;">
 
-              <button type="submit" class="btn btn-primary w-100">
-                <i class="fas fa-qrcode"></i> Generate QRIS
-              </button>
-            </form>
-          </div>
-        </div>
-
-        <!-- Tampilan QR dan Status Pembayaran -->
-        <div id="qrContainer" class="card card-custom" style="display: none;">
-          <div class="card-body text-center">
-            <!-- Tampilan status pembayaran -->
-            <div id="paymentStatus" class="mb-3"></div>
-            <img id="qrImage" src="" class="img-fluid mb-3" alt="QR Code">
-            <div class="countdown" id="countdown"></div>
-            
-            <!-- Tombol batalkan pembayaran memunculkan modal -->
-            <button 
-              class="btn btn-danger mt-3" 
-              data-bs-toggle="modal" 
-              data-bs-target="#cancelModal"
-            >
-              <i class="fas fa-times-circle"></i> Batalkan Pembayaran
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+  <div style="margin-bottom: 1rem; background: #f1f1f1; padding: 8px; border-radius: 6px;">
+    <i class="bi bi-info-circle"></i>
+    Akan diterima: <strong>Rp <span id="diterima">0</span></strong> (Biaya: Rp <span id="fee">0</span>)
   </div>
 
-  <!-- Bootstrap Toast Notification Container -->
-  <div id="toastContainer"></div>
+  <button class="btn btn-primary" onclick="generateQRIS()">Generate QRIS</button>
+</div>
 
-  <!-- Modal Bootstrap untuk Konfirmasi Pembatalan -->
-  <div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header bg-warning">
-          <h5 class="modal-title" id="cancelModalLabel">Konfirmasi Pembatalan</h5>
-          <button 
-            type="button" 
-            class="btn-close" 
-            data-bs-dismiss="modal" 
-            aria-label="Close"
-          ></button>
-        </div>
-        <div class="modal-body">
-          <p class="mb-0">Apakah Anda yakin ingin membatalkan pembayaran ini?</p>
-        </div>
-        <div class="modal-footer">
-          <button 
-            type="button" 
-            class="btn btn-secondary" 
-            data-bs-dismiss="modal"
-          >Batal</button>
-          <button 
-            type="button" 
-            class="btn btn-danger" 
-            id="confirmCancelBtn"
-          >Ya, Batalkan</button>
-        </div>
-      </div>
-    </div>
+<!-- Pop-up QRIS -->
+<div class="qris-popup" id="qrisModal" style="display: none;">
+  <div class="qris-box">
+    <span class="btn-close-popup" onclick="tutupQRIS()">&times;</span>
+    <h3>Status Pembayaran</h3>
+    <div id="statusBadge" class="badge-status badge-pending">Menunggu Pembayaran</div>
+    <img id="qrisImage" src="https://via.placeholder.com/300x300.png?text=QRIS" alt="QRIS" style="width: 100%; max-width: 300px; margin-bottom: 1rem;">
+    <p id="timer">Selesaikan pembayaran dalam 60 menit</p>
+    <button id="btn-batalkan" class="btn btn-danger">Batalkan Pembayaran</button>
   </div>
+</div>
 
-  <!-- Bootstrap JS (untuk toast & modal) -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    const API_KEY = 'sk-2CS8Oghs8pH5d8';
-    let paymentData = null;
-    let intervalId = null;
+<script>
+  const modal = document.getElementById("qrisModal");
+  const badge = document.getElementById("statusBadge");
+  const diterimaText = document.getElementById("diterima");
+  const feeText = document.getElementById("fee");
 
-    // Fungsi menampilkan notifikasi toast
-    function showToast(message, type = 'info') {
-      // type bisa 'success', 'danger', 'warning', 'info'
-      const toastId = 'toast' + Date.now();
-      const toastHTML = `
-        <div id="${toastId}" class="toast align-items-center text-white bg-${type} border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true">
-          <div class="d-flex">
-            <div class="toast-body">
-              ${message}
-            </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-          </div>
-        </div>
-      `;
-      const container = document.getElementById('toastContainer');
-      container.insertAdjacentHTML('beforeend', toastHTML);
-      const toastElement = document.getElementById(toastId);
-      const toast = new bootstrap.Toast(toastElement, { delay: 5000 });
-      toast.show();
-
-      toastElement.addEventListener('hidden.bs.toast', function () {
-        toastElement.remove();
-      });
+  function generateQRIS() {
+    const nominal = parseInt(document.getElementById("nominal").value);
+    if (isNaN(nominal) || nominal < 500) {
+      Swal.fire("Nominal tidak valid", "Minimal pembayaran adalah Rp 500", "warning");
+      return;
     }
 
-    // Hitung biaya transaksi
-    function calculateFee(nominal) {
-      const percentageFee = 1.4;
-      const fee = Math.max(nominal * (percentageFee / 100), 10);
-      return Math.ceil(fee);
+    const fee = 10;
+    const diterima = nominal - fee;
+    diterimaText.textContent = diterima;
+    feeText.textContent = fee;
+
+    // tampilkan QRIS
+    badge.className = 'badge-status badge-pending';
+    badge.textContent = 'Menunggu Pembayaran';
+    modal.style.display = "flex";
+
+    // simulasi polling status (ganti dengan polling API beneran)
+    setTimeout(() => updateStatus("success"), 10000); // ubah ke "failed" utk tes gagal
+  }
+
+  function tutupQRIS() {
+    modal.style.display = "none";
+  }
+
+  function updateStatus(status) {
+    if (status === "success") {
+      badge.className = 'badge-status badge-success';
+      badge.textContent = 'Pembayaran Berhasil';
+      Swal.fire("Sukses!", "Pembayaran telah berhasil dikonfirmasi.", "success");
+    } else if (status === "failed") {
+      badge.className = 'badge-status badge-failed';
+      badge.textContent = 'Pembayaran Gagal';
+      Swal.fire("Gagal!", "Pembayaran tidak berhasil.", "error");
     }
+  }
 
-    // Update tampilan biaya
-    document.getElementById('nominalInput').addEventListener('input', function(e) {
-      const nominal = parseInt(e.target.value) || 0;
-      const fee = calculateFee(nominal);
-      const received = nominal - fee;
-      
-      document.getElementById('feeAmount').textContent = fee.toLocaleString('id-ID');
-      document.getElementById('receivedAmount').textContent = received.toLocaleString('id-ID');
-    });
-
-    // Fungsi untuk mendapatkan class status berdasarkan nilai status
-    function getStatusClass(status) {
-      const s = status.toLowerCase();
-      if(s === 'pending') return 'status-pending';
-      if(s === 'success') return 'status-success';
-      if(s === 'failed' || s === 'gagal' || s === 'expired') return 'status-failed';
-      return '';
-    }
-
-    // Submit form pembayaran
-    document.getElementById('paymentForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      const nominal = parseInt(document.getElementById('nominalInput').value);
-      if(nominal < 500) {
-        showToast('Minimal pembayaran Rp 500', 'warning');
-        return;
-      }
-
-      try {
-        const response = await fetch('https://forestapi.web.id/api/h2h/deposit/create', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            nominal: nominal,
-            method: 'QRISFAST',
-            fee_by_customer: 'false',
-            reff_id: 'deposit-vinzz-' + Date.now(),
-            api_key: API_KEY
-          })
-        });
-
-        const data = await response.json();
-        
-        if(data.status === 'success') {
-          paymentData = data.data;
-          showQRCode();
-          startCountdown();
-          showToast('Pembayaran berhasil dibuat, silahkan selesaikan pembayaran!', 'success');
-        } else {
-          showToast('Gagal membuat pembayaran: ' + data.message, 'danger');
-        }
-      } catch (error) {
-        showToast('Terjadi kesalahan: ' + error.message, 'danger');
+  document.getElementById("btn-batalkan").addEventListener("click", () => {
+    Swal.fire({
+      title: 'Batalkan Pembayaran?',
+      text: "Yakin ingin membatalkan transaksi ini?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Ya, Batalkan',
+      cancelButtonText: 'Tidak',
+      reverseButtons: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        tutupQRIS();
+        Swal.fire("Dibatalkan", "Transaksi telah dibatalkan", "info");
       }
     });
+  });
+</script>
 
-    // Tampilkan QR Code dan status pembayaran
-    function showQRCode() {
-      document.getElementById('qrContainer').style.display = 'block';
-      document.getElementById('qrImage').src = paymentData.qr_image_url;
-      // Tampilkan status pembayaran
-      const statusClass = getStatusClass(paymentData.status);
-      document.getElementById('paymentStatus').innerHTML = `
-        <strong>Status Pembayaran:</strong> 
-        <span class="${statusClass}">${paymentData.status}</span>
-      `;
-      document.getElementById('paymentForm').reset();
-    }
-
-    // Hitung mundur waktu kedaluwarsa
-    function startCountdown() {
-      const expiredAt = new Date(paymentData.expired_at).getTime();
-      
-      intervalId = setInterval(() => {
-        const now = new Date().getTime();
-        const distance = expiredAt - now;
-        
-        if(distance < 0) {
-          clearInterval(intervalId);
-          document.getElementById('countdown').innerHTML = "Waktu pembayaran telah habis";
-          // Update status menjadi expired/gagal
-          document.getElementById('paymentStatus').innerHTML = `
-            <strong>Status Pembayaran:</strong> 
-            <span class="status-failed">expired</span>
-          `;
-          showToast('Waktu pembayaran telah habis', 'danger');
-          return;
-        }
-
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-        
-        document.getElementById('countdown').innerHTML = 
-          `Selesaikan pembayaran dalam ${minutes} menit ${seconds} detik`;
-      }, 1000);
-    }
-
-    // Event listener untuk tombol "Ya, Batalkan" di modal
-    document.getElementById('confirmCancelBtn').addEventListener('click', async () => {
-      // Tutup modal
-      const cancelModal = new bootstrap.Modal(document.getElementById('cancelModal'), {});
-      cancelModal.hide();
-      
-      // Jalankan fungsi pembatalan
-      await cancelPayment();
-    });
-
-    // Batalkan pembayaran
-    async function cancelPayment() {
-      if(!paymentData) return; // Pastikan ada data payment
-      
-      try {
-        const response = await fetch('https://forestapi.web.id/api/h2h/deposit/cancel', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            id: paymentData.id,
-            api_key: API_KEY
-          })
-        });
-
-        const data = await response.json();
-        
-        if(data.status === 'success') {
-          clearInterval(intervalId);
-          document.getElementById('qrContainer').style.display = 'none';
-          paymentData = null;
-          showToast('Pembayaran berhasil dibatalkan', 'warning');
-        } else {
-          showToast('Gagal membatalkan pembayaran: ' + data.message, 'danger');
-        }
-      } catch (error) {
-        showToast('Gagal membatalkan pembayaran: ' + error.message, 'danger');
-      }
-    }
-  </script>
 </body>
 </html>
