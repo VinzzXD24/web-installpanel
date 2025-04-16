@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bayar QRIS Instant</title>
+  <title>Bayar QRIS Instan</title>
   <style>
     html,
     body {
@@ -21,32 +21,16 @@
     nav {
       background: none;
       border: none;
+      text-align: center;
+      padding: 1rem 0;
     }
-    .nav-container {
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      padding: 0.5rem 1rem;
-      margin-top: 1rem;
-    }
-    .navbar-toggler {
-      border: none;
-      background: transparent;
-      padding: 0;
-      margin-right: 1rem;
-    }
-    .navbar-toggler-icon {
-      width: 24px;
-      height: 24px;
-      background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(0,0,0,0.7)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
-    }
-    /* Offcanvas Styles */
-    .offcanvas {
-      width: 250px;
-    }
-    .offcanvas-header,
-    .offcanvas-body {
-      background: #f8f9fa;
+    .header-gradient {
+      background: linear-gradient(45deg, #4a90e2, #50e3c2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+      font-size: 1.8rem;
+      margin: 0;
     }
     /* Card Styles */
     .card-custom {
@@ -62,43 +46,6 @@
     .card-custom:hover {
       transform: translateY(-5px);
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-    }
-    /* Header Gradient Effect */
-    .header-gradient {
-      background: linear-gradient(45deg, #4a90e2, #50e3c2);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
-      text-align: center;
-      margin-bottom: 20px;
-      font-size: 1.8rem;
-    }
-    /* Button Styles */
-    button {
-      width: 100%;
-      padding: 10px;
-      background-color: #4a90e2;
-      border: none;
-      color: #fff;
-      font-size: 16px;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #407ac1;
-    }
-    .btn-copy {
-      font-weight: 600;
-    }
-    .btn-copy:hover {
-      opacity: 0.9;
-    }
-    /* Marquee Styles */
-    .marquee-custom {
-      background: rgba(74, 144, 226, 0.1);
-      padding: 15px;
-      border-radius: 10px;
-      margin-bottom: 20px;
     }
     /* Form & Input Styles */
     .form-group {
@@ -116,10 +63,48 @@
       border: 1px solid #ccc;
       border-radius: 4px;
     }
-    /* Message & QR Code Styles */
+    .radio-group {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .radio-group input {
+      margin-right: 4px;
+    }
+    /* Button Styles */
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #4a90e2;
+      border: none;
+      color: #fff;
+      font-size: 16px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #407ac1;
+    }
+    /* Marquee Styles */
+    .marquee-custom {
+      background: rgba(74, 144, 226, 0.1);
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    /* Message & Result Styles */
     .message {
       margin-top: 20px;
       text-align: center;
+    }
+    .result {
+      margin-top: 15px;
+      text-align: left;
+      background: #f1f1f1;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 0.95rem;
     }
     .qr-image {
       text-align: center;
@@ -151,14 +136,9 @@
   </style>
 </head>
 <body>
-  <!-- Navbar (optional) -->
+  <!-- Navbar -->
   <nav>
-    <div class="nav-container">
-      <button class="navbar-toggler">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <h2 class="header-gradient">Pembayaran QRIS Instant</h2>
-    </div>
+    <h2 class="header-gradient">Pembayaran QRIS Instan</h2>
   </nav>
 
   <div class="card-custom">
@@ -172,11 +152,19 @@
         <label for="nominal">Nominal Deposit (min 500, max 10.000.000)</label>
         <input type="number" id="nominal" name="nominal" min="500" max="10000000" required>
       </div>
+      <div class="form-group">
+        <label>Fee dibebankan oleh pelanggan?</label>
+        <div class="radio-group">
+          <label><input type="radio" name="fee_by_customer" value="true"> Ya</label>
+          <label><input type="radio" name="fee_by_customer" value="false" checked> Tidak</label>
+        </div>
+      </div>
       <button type="submit">Buat Deposit</button>
     </form>
 
     <div class="message" id="message"></div>
     <div class="qr-image" id="qr-container"></div>
+    <div class="result" id="result" style="display:none;"></div>
     
     <button id="cancel-deposit" style="display:none; margin-top:15px; background-color:#d9534f;">Batalkan Deposit</button>
   </div>
@@ -219,14 +207,14 @@
       }
     }
 
-    // Membuat deposit baru dengan nominal tertentu
-    async function createDeposit(nominal) {
+    // Membuat deposit baru dengan nominal dan pilihan fee
+    async function createDeposit(nominal, feeByCustomer) {
       // Membuat reff_id unik agar tidak terjadi duplikasi
       const uniqueReffId = `deposit-forestapi-${Date.now()}`;
       const data = {
         nominal: nominal,
         method: "QRISFAST",
-        fee_by_customer: "false",
+        fee_by_customer: feeByCustomer,
         reff_id: uniqueReffId,
         api_key: API_KEY
       };
@@ -247,6 +235,21 @@
             <img src="${result.data.qr_image_url}" alt="QRIS Payment">
           `;
           document.getElementById("cancel-deposit").style.display = "block";
+          
+          // Hitung total bayar berdasarkan pilihan fee oleh customer
+          let totalBayar = nominal;
+          if(feeByCustomer === "true") {
+            totalBayar = Number(nominal) + Number(result.data.fee);
+          }
+          
+          // Tampilkan info lengkap deposit
+          document.getElementById("result").style.display = "block";
+          document.getElementById("result").innerHTML = `
+            <p><strong>Nominal:</strong> ${nominal}</p>
+            <p><strong>Fee:</strong> ${result.data.fee}</p>
+            <p><strong>Total Bayar:</strong> ${totalBayar}</p>
+            <p><strong>Status:</strong> ${result.data.status}</p>
+          `;
         } else {
           console.error("Gagal membuat deposit:", result);
           document.getElementById("message").innerText = `Gagal membuat deposit: ${result.message}`;
@@ -276,6 +279,8 @@
           document.getElementById("message").innerText = result.message;
           document.getElementById("qr-container").innerHTML = "";
           document.getElementById("cancel-deposit").style.display = "none";
+          // Tampilkan status deposit yang dibatalkan
+          document.getElementById("result").innerHTML += `<p><strong>Status:</strong> dibatalkan</p>`;
           currentDepositId = null;
         } else {
           console.error("Gagal membatalkan deposit:", result);
@@ -295,7 +300,9 @@
         alert("Nominal harus antara 500 dan 10.000.000.");
         return;
       }
-      createDeposit(nominal);
+      // Ambil pilihan fee by customer dari radio button
+      const feeByCustomer = document.querySelector('input[name="fee_by_customer"]:checked').value;
+      createDeposit(nominal, feeByCustomer);
     });
 
     // Event listener untuk tombol cancel deposit
