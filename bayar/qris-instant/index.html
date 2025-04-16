@@ -177,12 +177,43 @@
       </div>
     </div>
   </div>
-
+  
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    const API_KEY = 'sk-2CS8Oghs8pH5d8'; // Ganti kalau perlu
+    const API_KEY = 'sk-2CS8Oghs8pH5d8';
     let paymentData = null;
     let intervalId = null;
+    let isProcessing = false;
+
+    // Cek status pembayaran yang sedang berjalan saat page load
+    document.addEventListener('DOMContentLoaded', () => {
+      const savedPayment = localStorage.getItem('vinzzPaymentData');
+      if (savedPayment) {
+        paymentData = JSON.parse(savedPayment);
+        const now = new Date();
+        const expiredAt = new Date(paymentData.expired_at);
+        
+        if (now < expiredAt) {
+          // Jika masih valid, tampilkan QR dan lanjutkan countdown
+          showQRCode();
+          startCountdown();
+          showToast('Pembayaran sebelumnya ditemukan', 'info');
+        } else {
+          // Jika sudah expired, hapus dari localStorage
+          localStorage.removeItem('vinzzPaymentData');
+          paymentData = null;
+        }
+      }
+    });
+
+    // Mencegah refresh saat proses pembayaran
+    window.addEventListener('beforeunload', (e) => {
+      if (isProcessing || (paymentData && paymentData.status === 'pending')) {
+        e.preventDefault();
+        e.returnValue = 'Anda sedang dalam proses pembayaran. Yakin ingin meninggalkan halaman?';
+        return e.returnValue;
+      }
+    });
 
     function showToast(message, type = 'info') {
       const toastId = 'toast' + Date.now();
@@ -192,10 +223,12 @@
             <div class="toast-body">${message}</div>
             <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
           </div>
-        </div>`;
+        </div>
+      `;
       document.getElementById('toastContainer').insertAdjacentHTML('beforeend', toastHTML);
       const toastElement = document.getElementById(toastId);
       new bootstrap.Toast(toastElement, { delay: 5000 }).show();
+      
       toastElement.addEventListener('hidden.bs.toast', () => toastElement.remove());
     }
 
@@ -213,10 +246,15 @@
     document.getElementById('paymentForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const nominal = parseInt(document.getElementById('nominalInput').value);
+
       if(nominal < 500) {
         showToast('Minimal pembayaran Rp 500', 'warning');
         return;
       }
+
+      isProcessing = true;
+      document.getElementById('paymentForm').querySelector('button[type="submit"]').disabled = true;
+      showToast('Sedang memproses pembayaran...', 'info');
 
       try {
         const response = await fetch('https://forestapi.web.id/api/h2h/deposit/create', {
@@ -226,116 +264,109 @@
             nominal: nominal,
             method: 'QRISFAST',
             fee_by_customer: 'false',
-            reff_id: 'vinzz-' + Date.now(),
+            reff_id: 'deposit-vinzz-' + Date.now(),
             api_key: API_KEY
           })
         });
 
         const data = await response.json();
+        
         if(data.status === 'success') {
           paymentData = data.data;
+          // Simpan ke localStorage
+          localStorage.setItem('vinzzPaymentData', JSON.stringify(paymentData));
           showQRCode();
-          pollStatus();
           startCountdown();
-          showToast('QRIS berhasil dibuat!', 'success');
+          showToast('Pembayaran berhasil dibuat!', 'success');
         } else {
           showToast('Gagal: ' + data.message, 'danger');
         }
       } catch (error) {
-        showToast('Gagal koneksi: ' + error.message, 'danger');
+        showToast('Error: ' + error.message, 'danger');
+      } finally {
+        isProcessing = false;
+        document.getElementById('paymentForm').querySelector('button[type="submit"]').disabled = false;
       }
     });
 
     function showQRCode() {
-      document.getElementById('qrContainer').style.display = 'block';
+      const qrContainer = document.getElementById('qrContainer');
+      qrContainer.style.display = 'block';
       document.getElementById('qrImage').src = paymentData.qr_image_url;
-      updateStatus(paymentData.status);
-      document.getElementById('paymentForm').reset();
-    }
-
-    function updateStatus(status) {
       document.getElementById('paymentStatus').innerHTML = `
         <strong>Status:</strong> 
-        <span class="${getStatusClass(status)}">${status}</span>`;
+        <span class="${getStatusClass(paymentData.status)}">${paymentData.status}</span>
+      `;
+      document.getElementById('paymentForm').reset();
     }
 
     function getStatusClass(status) {
       const s = status.toLowerCase();
       return s === 'pending' ? 'status-pending' :
-             s === 'success' ? 'status-success' : 'status-failed';
+             s === 'success' ? 'status-success' :
+             'status-failed';
     }
 
     function startCountdown() {
       const expiredAt = new Date(paymentData.expired_at).getTime();
+      clearInterval(intervalId); // Bersihkan interval sebelumnya jika ada
+      
       intervalId = setInterval(() => {
-        const now = Date.now();
+        const now = new Date().getTime();
         const distance = expiredAt - now;
-        if (distance <= 0) {
+        
+        if(distance < 0) {
           clearInterval(intervalId);
-          updateStatus('expired');
-          document.getElementById('countdown').textContent = 'Waktu habis!';
-          showToast('QRIS expired', 'danger');
+          document.getElementById('countdown').innerHTML = "Waktu habis!";
+          document.getElementById('paymentStatus').innerHTML = `
+            <strong>Status:</strong> <span class="status-failed">expired</span>
+          `;
+          showToast('Pembayaran telah kedaluwarsa', 'danger');
+          localStorage.removeItem('vinzzPaymentData');
           return;
         }
+
         const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-        document.getElementById('countdown').textContent = `Selesaikan dalam ${minutes}m ${seconds}s`;
+        document.getElementById('countdown').innerHTML = 
+          `Selesaikan dalam ${minutes}m ${seconds}d`;
       }, 1000);
     }
 
-    function pollStatus() {
-      intervalId = setInterval(async () => {
-        if (!paymentData) return;
-        try {
-          const response = await fetch('https://forestapi.web.id/api/h2h/deposit/status', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              uuid: paymentData.uuid,
-              api_key: API_KEY
-            })
-          });
-          const data = await response.json();
-          if(data.status === 'success' && data.data.status !== paymentData.status) {
-            paymentData.status = data.data.status;
-            updateStatus(paymentData.status);
-            if (paymentData.status === 'success' || paymentData.status === 'failed') {
-              clearInterval(intervalId);
-              showToast('Pembayaran ' + paymentData.status, paymentData.status === 'success' ? 'success' : 'danger');
-            }
-          }
-        } catch (error) {
-          console.error('Polling error:', error);
-        }
-      }, 3000);
-    }
-
     document.getElementById('confirmCancelBtn').addEventListener('click', async () => {
-      if (!paymentData) return;
+      const modal = bootstrap.Modal.getInstance(document.getElementById('cancelModal'));
+      modal.hide();
+      await cancelPayment();
+    });
+
+    async function cancelPayment() {
+      if(!paymentData) return;
+
       try {
         const response = await fetch('https://forestapi.web.id/api/h2h/deposit/cancel', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            uuid: paymentData.uuid,
+            id: paymentData.id,
             api_key: API_KEY
           })
         });
+
         const data = await response.json();
-        if (data.status === 'success') {
+        
+        if(data.status === 'success') {
           clearInterval(intervalId);
-          updateStatus('cancelled');
-          document.getElementById('countdown').textContent = 'Transaksi dibatalkan.';
-          showToast('Transaksi berhasil dibatalkan', 'warning');
-          const cancelModal = bootstrap.Modal.getInstance(document.getElementById('cancelModal'));
-          cancelModal.hide();
+          document.getElementById('qrContainer').style.display = 'none';
+          localStorage.removeItem('vinzzPaymentData');
+          paymentData = null;
+          showToast('Pembayaran dibatalkan', 'warning');
         } else {
           showToast('Gagal membatalkan: ' + data.message, 'danger');
         }
       } catch (error) {
-        showToast('Gagal koneksi: ' + error.message, 'danger');
+        showToast('Error: ' + error.message, 'danger');
       }
-    });
+    }
   </script>
 </body>
 </html>
