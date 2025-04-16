@@ -75,8 +75,12 @@
       position: absolute;
       right: 12px;
       top: 12px;
-      font-size: 1.2rem;
+      font-size: 1.4rem;
+      font-weight: bold;
       cursor: pointer;
+      border: none;
+      background: none;
+      color: #333;
     }
     #timer {
       color: #dc3545;
@@ -103,7 +107,7 @@
 <!-- Pop-up QRIS -->
 <div class="qris-popup" id="qrisModal" style="display: none;">
   <div class="qris-box">
-    <span class="btn-close-popup" onclick="tutupQRIS()">&times;</span>
+    <button class="btn-close-popup" onclick="tutupQRIS()">&times;</button>
     <h3>Status Pembayaran</h3>
     <div id="statusBadge" class="badge-status badge-pending">Menunggu Pembayaran</div>
     <img id="qrisImage" src="https://via.placeholder.com/300x300.png?text=QRIS" alt="QRIS" style="width: 100%; max-width: 300px; margin-bottom: 1rem;">
@@ -130,13 +134,12 @@
     diterimaText.textContent = diterima;
     feeText.textContent = fee;
 
-    // tampilkan QRIS
     badge.className = 'badge-status badge-pending';
     badge.textContent = 'Menunggu Pembayaran';
     modal.style.display = "flex";
 
-    // simulasi polling status (ganti dengan polling API beneran)
-    setTimeout(() => updateStatus("success"), 10000); // ubah ke "failed" utk tes gagal
+    // Simulasi update status
+    setTimeout(() => updateStatus("success"), 10000); // ganti ke "failed" jika perlu
   }
 
   function tutupQRIS() {
