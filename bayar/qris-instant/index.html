@@ -116,6 +116,9 @@
     .copy-btn:hover {
       opacity: 0.8;
     }
+    #inputSection {
+      display: block;
+    }
   </style>
 </head>
 <body>
@@ -130,7 +133,8 @@
 
   <div class="container py-4">
     <div class="row justify-content-center">
-      <div class="col-12 col-md-6">
+      <!-- Input Section -->
+      <div class="col-12 col-md-6" id="inputSection">
         <div class="card card-custom mb-4">
           <div class="card-body">
             <form id="paymentForm">
@@ -160,7 +164,10 @@
             </form>
           </div>
         </div>
+      </div>
 
+      <!-- QR Container -->
+      <div class="col-12 col-md-6">
         <div id="qrContainer" class="card card-custom" style="display: none;">
           <div class="card-body text-center">
             <img id="qrImage" src="" class="img-fluid mb-3" alt="QR Code" style="display: none;">
@@ -204,7 +211,7 @@
 
   <div id="toastContainer"></div>
 
-  <!-- Modal Konfirmasi Pembatalan -->
+  <!-- Cancel Payment Modal -->
   <div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
@@ -231,7 +238,7 @@
     let intervalId = null;
     let isProcessing = false;
 
-    // Fungsi untuk copy teks
+    // Fungsi Copy
     function copyToClipboard(elementId) {
       const text = document.getElementById(elementId).textContent.split(' ')[0];
       navigator.clipboard.writeText(text).then(() => {
@@ -239,7 +246,13 @@
       });
     }
 
-    // Cek status pembayaran yang sedang berjalan saat page load
+    // Tampilkan/Sembunyikan Section
+    function toggleSections() {
+      document.getElementById('inputSection').style.display = 'none';
+      document.getElementById('qrContainer').style.display = 'block';
+    }
+
+    // Inisialisasi
     document.addEventListener('DOMContentLoaded', () => {
       const savedPayment = localStorage.getItem('vinzzPaymentData');
       if (savedPayment) {
@@ -248,19 +261,18 @@
         const expiredAt = new Date(paymentData.expired_at);
         
         if (now < expiredAt) {
-          // Jika masih valid, tampilkan QR dan lanjutkan countdown
           showQRCode();
           startCountdown();
+          toggleSections();
           showToast('Pembayaran sebelumnya ditemukan', 'info');
         } else {
-          // Jika sudah expired, hapus dari localStorage
           localStorage.removeItem('vinzzPaymentData');
           paymentData = null;
         }
       }
     });
 
-    // Mencegah refresh saat proses pembayaran
+    // Peringatan Refresh
     window.addEventListener('beforeunload', (e) => {
       if (isProcessing || (paymentData && paymentData.status === 'pending')) {
         e.preventDefault();
@@ -269,6 +281,7 @@
       }
     });
 
+    // Toast Notification
     function showToast(message, type = 'info') {
       const toastId = 'toast' + Date.now();
       const toastHTML = `
@@ -286,13 +299,13 @@
       toastElement.addEventListener('hidden.bs.toast', () => toastElement.remove());
     }
 
+    // Hitung Biaya Admin
     function calculateFee(nominal) {
-      // Biaya 1.4% dengan minimum Rp 12 untuk nominal Rp 500
-      const percentageFee = 0.014;
-      const fee = Math.max(Math.ceil(nominal * percentageFee), nominal === 500 ? 12 : 10);
-      return fee;
+      if(nominal === 500) return 12;
+      return Math.ceil(nominal * 0.014);
     }
 
+    // Event Input Nominal
     document.getElementById('nominalInput').addEventListener('input', function(e) {
       const nominal = parseInt(e.target.value) || 0;
       const fee = calculateFee(nominal);
@@ -302,6 +315,7 @@
       document.getElementById('totalPayment').textContent = totalPayment.toLocaleString('id-ID');
     });
 
+    // Submit Form
     document.getElementById('paymentForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const nominal = parseInt(document.getElementById('nominalInput').value);
@@ -323,7 +337,7 @@
             nominal: nominal,
             method: 'QRISFAST',
             fee_by_customer: 'false',
-            reff_id: 'deposit-vinzz-' + Date.now(),
+            reff_id: 'vinzz-' + Date.now(),
             api_key: API_KEY
           })
         });
@@ -332,10 +346,10 @@
         
         if(data.status === 'success') {
           paymentData = data.data;
-          // Simpan ke localStorage
           localStorage.setItem('vinzzPaymentData', JSON.stringify(paymentData));
           showQRCode();
           startCountdown();
+          toggleSections();
           showToast('Pembayaran berhasil dibuat!', 'success');
         } else {
           showToast('Gagal: ' + data.message, 'danger');
@@ -348,37 +362,32 @@
       }
     });
 
+    // Tampilkan QR Code
     function showQRCode() {
-      const qrContainer = document.getElementById('qrContainer');
-      qrContainer.style.display = 'block';
       document.getElementById('qrImage').style.display = 'block';
       document.getElementById('qrImage').src = paymentData.qr_image_url;
       
-      // Update detail transaksi
       document.getElementById('transactionId').textContent = paymentData.id + ' ';
       document.getElementById('reffId').textContent = paymentData.reff_id + ' ';
       document.getElementById('transactionFee').textContent = `Rp ${paymentData.fee.toLocaleString('id-ID')}`;
       document.getElementById('totalAmount').textContent = `Rp ${(paymentData.nominal + paymentData.fee).toLocaleString('id-ID')}`;
       
-      // Update status
       document.getElementById('paymentStatus').innerHTML = `
         <strong>Status:</strong> 
         <span class="${getStatusClass(paymentData.status)}">${paymentData.status}</span>
       `;
-      
-      document.getElementById('paymentForm').reset();
     }
 
+    // Get Status Class
     function getStatusClass(status) {
-      const s = status.toLowerCase();
-      return s === 'pending' ? 'status-pending' :
-             s === 'success' ? 'status-success' :
-             'status-failed';
+      return status.toLowerCase() === 'pending' ? 'status-pending' :
+             status.toLowerCase() === 'success' ? 'status-success' : 'status-failed';
     }
 
+    // Countdown
     function startCountdown() {
       const expiredAt = new Date(paymentData.expired_at).getTime();
-      clearInterval(intervalId); // Bersihkan interval sebelumnya jika ada
+      clearInterval(intervalId);
       
       intervalId = setInterval(() => {
         const now = new Date().getTime();
@@ -390,7 +399,6 @@
           document.getElementById('paymentStatus').innerHTML = `
             <strong>Status:</strong> <span class="status-failed">expired</span>
           `;
-          showToast('Pembayaran telah kedaluwarsa', 'danger');
           localStorage.removeItem('vinzzPaymentData');
           return;
         }
@@ -402,12 +410,14 @@
       }, 1000);
     }
 
+    // Konfirmasi Pembatalan
     document.getElementById('confirmCancelBtn').addEventListener('click', async () => {
       const modal = bootstrap.Modal.getInstance(document.getElementById('cancelModal'));
       modal.hide();
       await cancelPayment();
     });
 
+    // Batalkan Pembayaran
     async function cancelPayment() {
       if(!paymentData) return;
 
@@ -425,32 +435,28 @@
         
         if(data.status === 'success') {
           clearInterval(intervalId);
-          document.getElementById('qrImage').style.display = 'none';
-          
-          // Update status ke failed
           paymentData.status = 'failed';
+          
+          // Update UI
           document.getElementById('paymentStatus').innerHTML = `
             <strong>Status:</strong> 
-            <span class="${getStatusClass('failed')}">failed</span>
+            <span class="status-failed">failed</span>
           `;
           
-          localStorage.removeItem('vinzzPaymentData');
-          
-          // Update tombol aksi
-          document.getElementById('actionBtn').innerHTML = '<i class="fas fa-redo"></i> Buat Transaksi Baru';
-          document.getElementById('actionBtn').classList.remove('btn-danger');
-          document.getElementById('actionBtn').classList.add('btn-primary');
-          document.getElementById('actionBtn').removeAttribute('data-bs-toggle');
-          document.getElementById('actionBtn').removeAttribute('data-bs-target');
-          document.getElementById('actionBtn').onclick = function() {
-            document.getElementById('paymentForm').reset();
+          const actionBtn = document.getElementById('actionBtn');
+          actionBtn.innerHTML = '<i class="fas fa-redo"></i> Buat Transaksi Baru';
+          actionBtn.classList.remove('btn-danger');
+          actionBtn.classList.add('btn-primary');
+          actionBtn.removeAttribute('data-bs-toggle');
+          actionBtn.removeAttribute('data-bs-target');
+          actionBtn.onclick = () => {
+            document.getElementById('inputSection').style.display = 'block';
             document.getElementById('qrContainer').style.display = 'none';
             paymentData = null;
+            localStorage.removeItem('vinzzPaymentData');
           };
           
           showToast('Pembayaran dibatalkan', 'warning');
-        } else {
-          showToast('Gagal membatalkan: ' + data.message, 'danger');
         }
       } catch (error) {
         showToast('Error: ' + error.message, 'danger');
