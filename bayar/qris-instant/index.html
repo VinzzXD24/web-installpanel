@@ -93,6 +93,19 @@
       border-radius: 10px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
+    .transaction-details {
+      background: #f8f9fa;
+      border-radius: 10px;
+      padding: 15px;
+      margin: 20px 0;
+    }
+    .transaction-details .row {
+      border-bottom: 1px solid #eee;
+      padding: 5px 0;
+    }
+    .transaction-details .row:last-child {
+      border-bottom: none;
+    }
   </style>
 </head>
 <body>
@@ -140,9 +153,31 @@
 
         <div id="qrContainer" class="card card-custom" style="display: none;">
           <div class="card-body text-center">
-            <div id="paymentStatus" class="mb-3"></div>
             <img id="qrImage" src="" class="img-fluid mb-3" alt="QR Code">
-            <div class="countdown" id="countdown"></div>
+            
+            <!-- Detail Transaksi -->
+            <div class="transaction-details text-start mb-4">
+              <div class="row mb-2">
+                <div class="col-6">ID Transaksi:</div>
+                <div class="col-6 fw-bold" id="transactionId">-</div>
+              </div>
+              <div class="row mb-2">
+                <div class="col-6">Reff ID:</div>
+                <div class="col-6 fw-bold" id="reffId">-</div>
+              </div>
+              <div class="row mb-2">
+                <div class="col-6">Biaya:</div>
+                <div class="col-6 fw-bold text-danger" id="transactionFee">-</div>
+              </div>
+              <div class="row mb-3">
+                <div class="col-6">Total Bayar:</div>
+                <div class="col-6 fw-bold text-success" id="totalAmount">-</div>
+              </div>
+            </div>
+
+            <div class="countdown mb-3" id="countdown"></div>
+            <div id="paymentStatus" class="mb-3"></div>
+            
             <button 
               class="btn btn-danger mt-3" 
               data-bs-toggle="modal" 
@@ -293,10 +328,19 @@
       const qrContainer = document.getElementById('qrContainer');
       qrContainer.style.display = 'block';
       document.getElementById('qrImage').src = paymentData.qr_image_url;
+      
+      // Update detail transaksi
+      document.getElementById('transactionId').textContent = paymentData.id;
+      document.getElementById('reffId').textContent = paymentData.reff_id;
+      document.getElementById('transactionFee').textContent = `Rp ${paymentData.fee.toLocaleString('id-ID')}`;
+      document.getElementById('totalAmount').textContent = `Rp ${(paymentData.nominal + paymentData.fee).toLocaleString('id-ID')}`;
+      
+      // Update status
       document.getElementById('paymentStatus').innerHTML = `
         <strong>Status:</strong> 
         <span class="${getStatusClass(paymentData.status)}">${paymentData.status}</span>
       `;
+      
       document.getElementById('paymentForm').reset();
     }
 
