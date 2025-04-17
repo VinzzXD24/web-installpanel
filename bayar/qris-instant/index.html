@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>QRIS INSTANT - VINZZ OFFICIAL</n  ><link rel="icon" href="https://i.upimg.com/yHfVGNKK5" type="image/png" sizes="32x32" />
+  <title>QRIS INSTANT - VINZZ OFFICIAL</title>
+  <link rel="icon" href="https://i.upimg.com/yHfVGNKK5" type="image/png" sizes="32x32" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
@@ -61,7 +62,7 @@
     <div class="row justify-content-center">
       <div class="col-12 col-md-6">
         <div class="card card-custom mb-4">
-          <div class="card-body">
+          <div class="card-body" id="formSection">
             <form id="paymentForm">
               <div class="mb-3">
                 <label class="form-label">Nominal Pembayaran</label>
@@ -93,14 +94,13 @@
                   <button class="btn btn-outline-secondary btn-sm copy-btn" data-copy-target="reffId"><i class="fas fa-copy"></i></button>
                 </div>
               </div>
-              <div class="row mb-2">
-                <div class="col-6">Biaya:</div><div class="col-6 fw-bold text-danger" id="transactionFee">-</div>
-              </div>
+              <div class="row mb-2"><div class="col-6">Biaya:</div><div class="col-6 fw-bold text-danger" id="transactionFee">-</div></div>
               <div class="row mb-3"><div class="col-6">Total Bayar:</div><div class="col-6 fw-bold text-success" id="totalAmount">-</div></div>
             </div>
             <div class="countdown mb-3" id="countdown"></div>
             <div id="paymentStatus" class="mb-3"></div>
-            <button class="btn btn-danger mt-3" data-bs-toggle="modal" data-bs-target="#cancelModal"><i class="fas fa-times-circle"></i> Batalkan Pembayaran</button>
+            <button class="btn btn-danger mt-3 me-2" data-bs-toggle="modal" data-bs-target="#cancelModal"><i class="fas fa-times-circle"></i> Batalkan</button>
+            <button id="newTxBtn" class="btn btn-success mt-3" style="display:none;"><i class="fas fa-sync-alt"></i> Transaksi Baru</button>
           </div>
         </div>
       </div>
@@ -131,132 +131,89 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     const API_KEY = 'sk-2CS8Oghs8pH5d8';
-    let paymentData = null;
-    let intervalId = null;
-    let isProcessing = false;
+    let paymentData=null, intervalId=null, isProcessing=false;
 
-    document.addEventListener('DOMContentLoaded', () => {
-      document.querySelectorAll('.copy-btn').forEach(btn => {
-        btn.addEventListener('click', e => {
-          const target = e.currentTarget.dataset.copyTarget;
-          const text = document.getElementById(target).textContent;
-          navigator.clipboard.writeText(text).then(() => showToast('Copied: ' + text, 'success'));
-        });
+    function showToast(msg,type='info'){
+      const id='t'+Date.now(),html=`<div id="${id}" class="toast align-items-center text-white bg-${type} border-0 mb-2" role="alert"><div class="d-flex"><div class="toast-body">${msg}</div><button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div></div>`;
+      document.getElementById('toastContainer').insertAdjacentHTML('beforeend',html);
+      const el=document.getElementById(id); new bootstrap.Toast(el,{delay:5000}).show(); el.addEventListener('hidden.bs.toast',()=>el.remove());
+    }
+
+    function calculateFee(n){return Math.ceil(n*0.014);}
+
+    document.addEventListener('DOMContentLoaded',()=>{
+      // Copy buttons
+      document.querySelectorAll('.copy-btn').forEach(btn=>btn.addEventListener('click',e=>{
+        const txt=document.getElementById(e.currentTarget.dataset.copyTarget).textContent;
+        navigator.clipboard.writeText(txt).then(()=>showToast('Copied: '+txt,'success'));
+      }));
+      document.getElementById('newTxBtn').addEventListener('click',()=>{
+        paymentData=null; clearInterval(intervalId); localStorage.removeItem('vinzzPaymentData');
+        document.getElementById('qrContainer').style.display='none';
+        document.getElementById('formSection').style.display='block';
+        showToast('Silakan mulai transaksi baru','info');
       });
-      const saved = localStorage.getItem('vinzzPaymentData');
-      if (saved) {
-        paymentData = JSON.parse(saved);
-        const now = new Date(), exp = new Date(paymentData.expired_at);
-        if (now < exp) { showQRCode(); startCountdown(); showToast('Pembayaran sebelumnya ditemukan','info'); }
-        else { localStorage.removeItem('vinzzPaymentData'); paymentData=null; }
+      // Restore pending
+      const saved=localStorage.getItem('vinzzPaymentData');
+      if(saved){paymentData=JSON.parse(saved); const now=new Date(),exp=new Date(paymentData.expired_at);
+        if(now<exp){showQRCode();startCountdown();showToast('Pembayaran ditemukan','info');}
+        else localStorage.removeItem('vinzzPaymentData');}
+    });
+
+    window.addEventListener('beforeunload',e=>{
+      if(isProcessing||(paymentData&&paymentData.status==='pending')){
+        e.preventDefault();e.returnValue='Masih dalam proses pembayaran.';
       }
     });
 
-    window.addEventListener('beforeunload', e => {
-      if (isProcessing || (paymentData && paymentData.status==='pending')) {
-        e.preventDefault(); e.returnValue='Anda sedang dalam proses pembayaran. Yakin ingin meninggalkan halaman?';
-      }
+    document.getElementById('nominalInput').addEventListener('input',e=>{
+      const n=parseInt(e.target.value)||0,f=calculateFee(n);
+      document.querySelector('.fee-alert small').innerHTML=`<i class="fas fa-info-circle"></i> Jumlah Ini Belum Termasuk Biaya Admin`;
     });
 
-    function showToast(msg, type='info') {
-      const id='t'+Date.now();
-      const html = `<div id="${id}" class="toast align-items-center text-white bg-${type} border-0 mb-2" role="alert">
-        <div class="d-flex"><div class="toast-body">${msg}</div>
-        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div></div>`;
-      document.getElementById('toastContainer').insertAdjacentHTML('beforeend', html);
-      const el = document.getElementById(id); new bootstrap.Toast(el,{delay:5000}).show();
-      el.addEventListener('hidden.bs.toast',()=>el.remove());
-    }
-
-    function calculateFee(n) { return Math.ceil(n * 0.014); }
-
-    document.getElementById('nominalInput').addEventListener('input', e => {
-      const n = parseInt(e.target.value) || 0;
-      const f = calculateFee(n);
-      document.getElementById('feeAmount').textContent = f.toLocaleString('id-ID');
-      document.getElementById('receivedAmount').textContent = (n - f).toLocaleString('id-ID');
+    document.getElementById('paymentForm').addEventListener('submit',async e=>{
+      e.preventDefault();const nominal=parseInt(document.getElementById('nominalInput').value);
+      if(nominal<500){showToast('Minimal Rp 500','warning');return;}
+      isProcessing=true; e.target.querySelector('button').disabled=true;showToast('Memproses...','info');
+      try{const res=await fetch('https://forestapi.web.id/api/h2h/deposit/create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nominal,method:'QRISFAST',fee_by_customer:'false',reff_id:'deposit-vinzz-'+Date.now(),api_key:API_KEY})});
+        const data=await res.json(); if(data.status==='success'){paymentData=data.data;localStorage.setItem('vinzzPaymentData',JSON.stringify(paymentData));showQRCode();startCountdown();showToast('Berhasil dibuat','success');} else showToast('Gagal: '+data.message,'danger');
+      }catch(err){showToast('Error: '+err.message,'danger');}finally{isProcessing=false;e.target.querySelector('button').disabled=false;}
     });
 
-    document.getElementById('paymentForm').addEventListener('submit', async e => {
-      e.preventDefault();
-      const nominal = parseInt(document.getElementById('nominalInput').value);
-      if (nominal < 500) { showToast('Minimal pembayaran Rp 500','warning'); return; }
-      isProcessing = true; e.target.querySelector('button[type="submit"]').disabled = true;
-      showToast('Sedang memproses pembayaran...','info');
-      try {
-        const res = await fetch('https://forestapi.web.id/api/h2h/deposit/create', {
-          method:'POST', headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({ nominal, method:'QRISFAST', fee_by_customer:'false', reff_id:'deposit-vinzz-'+Date.now(), api_key:API_KEY })
-        });
-        const data = await res.json();
-        if (data.status === 'success') {
-          paymentData = data.data;
-          localStorage.setItem('vinzzPaymentData', JSON.stringify(paymentData));
-          showQRCode(); startCountdown(); showToast('Pembayaran berhasil dibuat!','success');
-        } else showToast('Gagal: '+data.message,'danger');
-      } catch(err) { showToast('Error: '+err.message,'danger'); }
-      finally { isProcessing=false; e.target.querySelector('button[type="submit"]').disabled=false; }
-    });
-
-    function hideQRSection() {
-      document.getElementById('qrImage').style.display='none';
-      document.getElementById('countdown').style.display='none';
-      document.getElementById('paymentStatus').style.display='none';
-      document.querySelector('#qrContainer button[data-bs-toggle="modal"]').style.display='none';
-    }
-
-    function showQRCode() {
+    function showQRCode(){
+      document.getElementById('formSection').style.display='none';
       document.getElementById('qrContainer').style.display='block';
       document.getElementById('qrImage').style.display='block';
-      document.getElementById('qrImage').src = paymentData.qr_image_url;
-      document.getElementById('transactionId').textContent = paymentData.id;
-      document.getElementById('reffId').textContent = paymentData.reff_id;
-      document.getElementById('transactionFee').textContent = 'Rp ' + paymentData.fee.toLocaleString('id-ID');
-      document.getElementById('totalAmount').textContent = 'Rp ' + (paymentData.nominal + paymentData.fee).toLocaleString('id-ID');
-      document.getElementById('paymentStatus').innerHTML = `<strong>Status:</strong> <span class="${getStatusClass(paymentData.status)}">${paymentData.status}</span>`;
-      if (paymentData.status !== 'pending') hideQRSection();
-      document.getElementById('paymentForm').reset();
+      document.getElementById('qrImage').src=paymentData.qr_image_url;
+      document.getElementById('transactionId').textContent=paymentData.id;
+      document.getElementById('reffId').textContent=paymentData.reff_id;
+      document.getElementById('transactionFee').textContent='Rp '+paymentData.fee.toLocaleString('id-ID');
+      document.getElementById('totalAmount').textContent='Rp '+(paymentData.nominal+paymentData.fee).toLocaleString('id-ID');
+      document.getElementById('paymentStatus').innerHTML=`<strong>Status:</strong> <span class="${getStatusClass(paymentData.status)}">${paymentData.status}</span>`;
+      if(paymentData.status!=='pending'){hideQR(); document.getElementById('newTxBtn').style.display='inline-block';}
     }
 
-    function getStatusClass(s) { const st=s.toLowerCase(); return st==='pending'?'status-pending':st==='success'?'status-success':'status-failed'; }
-
-    function startCountdown() {
-      const exp=new Date(paymentData.expired_at).getTime(); clearInterval(intervalId);
-      intervalId = setInterval(() => {
-        const now = Date.now(), d = exp - now;
-        if (d < 0) {
-          clearInterval(intervalId);
-          document.getElementById('countdown').textContent = 'Waktu habis!';
-          document.getElementById('paymentStatus').innerHTML = `<strong>Status:</strong> <span class="status-failed">expired</span>`;
-          hideQRSection();
-          showToast('Pembayaran telah kedaluwarsa','danger');
-          localStorage.removeItem('vinzzPaymentData');
-          return;
-        }
-        const m = Math.floor((d % (1000*60*60)) / (1000*60)), s = Math.floor((d % (1000*60)) / 1000);
-        document.getElementById('countdown').textContent = `Selesaikan dalam ${m}m ${s}d`;
-      }, 1000);
+    function hideQR(){
+      ['qrImage','countdown','paymentStatus'].forEach(id=>document.getElementById(id).style.display='none');
+      document.querySelector('#qrContainer button[data-bs-toggle]').style.display='none';
     }
 
-    document.getElementById('confirmCancelBtn').addEventListener('click', async () => {
-      bootstrap.Modal.getInstance(document.getElementById('cancelModal')).hide();
-      await cancelPayment();
-    });
+    function getStatusClass(s){const st=s.toLowerCase();return st==='pending'?'status-pending':st==='success'?'status-success':'status-failed';}
 
-    async function cancelPayment() {
-      if (!paymentData) return;
-      try {
-        const res = await fetch('https://forestapi.web.id/api/h2h/deposit/cancel', {
-          method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ id:paymentData.id, api_key:API_KEY })
-        });
-        const data = await res.json();
-        if (data.status==='success') {
-          clearInterval(intervalId);
-          hideQRSection();
-          showToast('Pembayaran dibatalkan','warning');
-        } else showToast('Gagal membatalkan: '+data.message,'danger');
-      } catch(err) { showToast('Error: '+err.message,'danger'); }
+    function startCountdown(){
+      const exp=new Date(paymentData.expired_at).getTime();clearInterval(intervalId);
+      intervalId=setInterval(()=>{
+        const d=exp-Date.now();if(d<0){clearInterval(intervalId);document.getElementById('countdown').textContent='Waktu habis!';document.getElementById('paymentStatus').innerHTML=`<strong>Status:</strong> <span class="status-failed">expired</span>`;hideQR();document.getElementById('newTxBtn').style.display='inline-block';localStorage.removeItem('vinzzPaymentData');return;}
+        const m=Math.floor((d%(1000*60*60))/(1000*60)),s=Math.floor((d%(1000*60))/1000);
+        document.getElementById('countdown').textContent=`Selesaikan dalam ${m}m ${s}d`;
+      },1000);
     }
+
+    document.getElementById('confirmCancelBtn').addEventListener('click',async ()=>{bootstrap.Modal.getInstance(document.getElementById('cancelModal')).hide();await cancelPayment();});
+
+    async function cancelPayment(){
+      if(!paymentData) return; try{const res=await fetch('https://forestapi.web.id/api/h2h/deposit/cancel',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:paymentData.id,api_key:API_KEY})});
+      const data=await res.json();if(data.status==='success'){clearInterval(intervalId);hideQR();document.getElementById('newTxBtn').style.display='inline-block';showToast('Dibatalkan','warning');}else showToast('Gagal membatalkan: '+data.message,'danger');}catch(err){showToast('Error: '+err.message,'danger');}}
   </script>
 </body>
 </html>
