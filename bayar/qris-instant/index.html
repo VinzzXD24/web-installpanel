@@ -9,27 +9,16 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
   <style>
-    html, body {
-      height: 100%; margin: 0; padding: 0;
-    }
+    html, body { height: 100%; margin: 0; padding: 0; }
     body {
       font-family: "Poppins", sans-serif;
       background: linear-gradient(135deg, #e0f7fa, #ffffff);
       color: #333; padding-bottom: 100px;
     }
     .nav-container { display: flex; align-items: center; padding: .5rem 1rem; margin-top: 1rem; }
-    .card-custom {
-      border-radius: 15px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      transition: transform .3s ease;
-      background: #fff;
-    }
+    .card-custom { border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: transform .3s ease; background: #fff; }
     .card-custom:hover { transform: translateY(-5px); }
-    .header-gradient {
-      background: linear-gradient(45deg, #4a90e2, #50e3c2);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
+    .header-gradient { background: linear-gradient(45deg, #4a90e2, #50e3c2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     .countdown { font-size: 1.2rem; color: #dc3545; font-weight: 600; }
     #qrContainer { transition: all .3s ease; }
     .fee-alert { background: #fff3e0; border-left: 4px solid #ff9100; }
@@ -37,10 +26,7 @@
     .status-success { color: #28a745; font-weight: bold; }
     .status-failed  { color: #dc3545; font-weight: bold; }
     #toastContainer { position: fixed; top:20px; right:20px; z-index:1055; }
-    .btn-primary {
-      background: linear-gradient(45deg, #4a90e2, #50e3c2);
-      border: none; transition: all .3s ease;
-    }
+    .btn-primary { background: linear-gradient(45deg, #4a90e2, #50e3c2); border: none; transition: all .3s ease; }
     .btn-primary:hover { opacity: .9; transform: translateY(-2px); }
     .form-control { border-radius: 10px; padding: 12px 15px; }
     .form-control:focus { box-shadow: 0 0 0 3px rgba(74,144,226,0.25); border-color: #4a90e2; }
@@ -155,59 +141,69 @@
       el.addEventListener('hidden.bs.toast',()=>el.remove());
     }
 
-    function calculateFee(n) { return Math.ceil(Math.max(n*0.014,10)); }
+    // Hitung fee 1.4% tanpa minimal
+    function calculateFee(n) { return Math.ceil(n * 0.014); }
 
     document.getElementById('nominalInput').addEventListener('input', e => {
-      const n=parseInt(e.target.value)||0; const f=calculateFee(n);
-      document.getElementById('feeAmount').textContent=f.toLocaleString('id-ID');
-      document.getElementById('receivedAmount').textContent=n.toLocaleString('id-ID');
+      const n = parseInt(e.target.value) || 0;
+      const f = calculateFee(n);
+      document.getElementById('feeAmount').textContent = f.toLocaleString('id-ID');
+      document.getElementById('receivedAmount').textContent = (n - f).toLocaleString('id-ID');
     });
 
     document.getElementById('paymentForm').addEventListener('submit', async e => {
       e.preventDefault();
-      const nominal=parseInt(document.getElementById('nominalInput').value);
-      if (nominal<500) { showToast('Minimal pembayaran Rp 500','warning'); return; }
-      isProcessing=true;
-      e.target.querySelector('button[type="submit"]').disabled=true;
+      const nominal = parseInt(document.getElementById('nominalInput').value);
+      if (nominal < 500) { showToast('Minimal pembayaran Rp 500','warning'); return; }
+      isProcessing = true;
+      e.target.querySelector('button[type="submit"]').disabled = true;
       showToast('Sedang memproses pembayaran...','info');
       try {
-        const res=await fetch('https://forestapi.web.id/api/h2h/deposit/create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nominal,method:'QRISFAST',fee_by_customer:'false',reff_id:'deposit-vinzz-'+Date.now(),api_key:API_KEY})});
-        const data=await res.json();
-        if (data.status==='success') {
-          paymentData=data.data; localStorage.setItem('vinzzPaymentData',JSON.stringify(paymentData));
+        const res = await fetch('https://forestapi.web.id/api/h2h/deposit/create', {
+          method: 'POST', headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ nominal, method:'QRISFAST', fee_by_customer:'false', reff_id:'deposit-vinzz-'+Date.now(), api_key:API_KEY })
+        });
+        const data = await res.json();
+        if (data.status === 'success') {
+          paymentData = data.data;
+          localStorage.setItem('vinzzPaymentData', JSON.stringify(paymentData));
           showQRCode(); startCountdown(); showToast('Pembayaran berhasil dibuat!','success');
         } else showToast('Gagal: '+data.message,'danger');
       } catch(err) { showToast('Error: '+err.message,'danger'); }
-      finally { isProcessing=false; e.target.querySelector('button[type="submit"]').disabled=false; }
+      finally { isProcessing = false; e.target.querySelector('button[type="submit"]').disabled = false; }
     });
 
     function showQRCode() {
-      document.getElementById('qrContainer').style.display='block';
-      document.getElementById('qrImage').src=paymentData.qr_image_url;
-      document.getElementById('transactionId').textContent=paymentData.id;
-      document.getElementById('reffId').textContent=paymentData.reff_id;
-      document.getElementById('transactionFee').textContent='Rp '+paymentData.fee.toLocaleString('id-ID');
-      document.getElementById('totalAmount').textContent='Rp '+paymentData.nominal.toLocaleString('id-ID');
-      document.getElementById('paymentStatus').innerHTML=`<strong>Status:</strong> <span class="${getStatusClass(paymentData.status)}">${paymentData.status}</span>`;
+      document.getElementById('qrContainer').style.display = 'block';
+      document.getElementById('qrImage').src = paymentData.qr_image_url;
+      document.getElementById('transactionId').textContent = paymentData.id;
+      document.getElementById('reffId').textContent = paymentData.reff_id;
+      document.getElementById('transactionFee').textContent = 'Rp ' + paymentData.fee.toLocaleString('id-ID');
+      document.getElementById('totalAmount').textContent = 'Rp ' + (paymentData.nominal + paymentData.fee).toLocaleString('id-ID');
+      document.getElementById('paymentStatus').innerHTML = `<strong>Status:</strong> <span class="${getStatusClass(paymentData.status)}">${paymentData.status}</span>`;
       document.getElementById('paymentForm').reset();
     }
 
-    function getStatusClass(s) {
-      const st=s.toLowerCase();
-      return st==='pending'?'status-pending':st==='success'?'status-success':'status-failed';
-    }
+    function getStatusClass(s) { const st = s.toLowerCase(); return st==='pending'?'status-pending':st==='success'?'status-success':'status-failed'; }
 
     function startCountdown() {
-      const exp=new Date(paymentData.expired_at).getTime(); clearInterval(intervalId);
-      intervalId=setInterval(()=>{
-        const now=Date.now(), d=exp-now;
-        if (d<0) { clearInterval(intervalId); document.getElementById('countdown').innerHTML='Waktu habis!'; document.getElementById('paymentStatus').innerHTML=`<strong>Status:</strong> <span class="status-failed">expired</span>`; showToast('Pembayaran telah kedaluwarsa','danger'); localStorage.removeItem('vinzzPaymentData'); return; }
-        const m=Math.floor((d%(1000*60*60))/(1000*60)), s=Math.floor((d%(1000*60))/1000);
-        document.getElementById('countdown').innerHTML=`Selesaikan dalam ${m}m ${s}d`;
-      },1000);
+      const exp = new Date(paymentData.expired_at).getTime(); clearInterval(intervalId);
+      intervalId = setInterval(() => {
+        const now = Date.Now(), d = exp - now;
+        if (d < 0) {
+          clearInterval(intervalId);
+          document.getElementById('countdown').textContent = 'Waktu habis!';
+          document.getElementById('paymentStatus').innerHTML = `<strong>Status:</strong> <span class="status-failed">expired</span>`;
+          showToast('Pembayaran telah kedaluwarsa','danger');
+          localStorage.removeItem('vinzzPaymentData');
+          return;
+        }
+        const m = Math.floor((d % (1000*60*60))/(1000*60)), s = Math.floor((d % (1000*60))/1000);
+        document.getElementById('countdown').textContent = `Selesaikan dalam ${m}m ${s}d`;
+      }, 1000);
     }
 
-    document.getElementById('confirmCancelBtn').addEventListener('click', async ()=>{
+    document.getElementById('confirmCancelBtn').addEventListener('click', async () => {
       bootstrap.Modal.getInstance(document.getElementById('cancelModal')).hide();
       await cancelPayment();
     });
@@ -215,10 +211,15 @@
     async function cancelPayment() {
       if (!paymentData) return;
       try {
-        const res=await fetch('https://forestapi.web.id/api/h2h/deposit/cancel',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:paymentData.id,api_key:API_KEY})});
-        const data=await res.json();
+        const res = await fetch('https://forestapi.web.id/api/h2h/deposit/cancel', {
+          method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ id:paymentData.id, api_key:API_KEY })
+        });
+        const data = await res.json();
         if (data.status==='success') {
-          clearInterval(intervalId); document.getElementById('qrContainer').style.display='none'; localStorage.removeItem('vinzzPaymentData'); paymentData=null; showToast('Pembayaran dibatalkan','warning');
+          clearInterval(intervalId);
+          document.getElementById('qrContainer').style.display='none';
+          localStorage.removeItem('vinzzPaymentData'); paymentData=null;
+          showToast('Pembayaran dibatalkan','warning');
         } else showToast('Gagal membatalkan: '+data.message,'danger');
       } catch(err) { showToast('Error: '+err.message,'danger'); }
     }
