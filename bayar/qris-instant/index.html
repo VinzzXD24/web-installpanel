@@ -426,6 +426,14 @@
         if(data.status === 'success') {
           clearInterval(intervalId);
           document.getElementById('qrImage').style.display = 'none';
+          
+          // Update status ke failed
+          paymentData.status = 'failed';
+          document.getElementById('paymentStatus').innerHTML = `
+            <strong>Status:</strong> 
+            <span class="${getStatusClass('failed')}">failed</span>
+          `;
+          
           localStorage.removeItem('vinzzPaymentData');
           
           // Update tombol aksi
