@@ -11,15 +11,14 @@
   <style>
     html, body { height:100%; margin:0; padding:0; overflow-x:hidden; }
     body { font-family:'Poppins', sans-serif; background:linear-gradient(135deg,#e0f7fa,#ffffff); color:#333; padding-bottom:100px; position:relative; }
-    /* Cloud Animations */
     .cloud { position:fixed; background:#fff; border-radius:50%; box-shadow: inset -15px 0 10px rgba(0,0,0,0.1); opacity:0.8; z-index:-1; }
     .cloud1 { width:200px; height:60px; top:10%; animation:moveCloud 60s linear infinite; }
     .cloud2 { width:150px; height:45px; top:30%; animation:moveCloud 45s linear infinite 10s; }
     .cloud3 { width:180px; height:50px; top:50%; animation:moveCloud 75s linear infinite 5s; }
-    @keyframes moveCloud { from { transform:translateX(-250px); } to { transform:translateX(100vw); } }
+    @keyframes moveCloud { from { transform:translateX(-250px);} to { transform:translateX(100vw);} }
     .nav-container { display:flex; align-items:center; padding:.5rem 1rem; margin-top:1rem; }
     .card-custom { border-radius:15px; box-shadow:0 4px 12px rgba(0,0,0,0.1); transition:transform .3s ease; background:#fff; }
-    .card-custom:hover { transform:translateY(-5px); }
+    .card-custom:hover { transform:translateY(-5px);}  
     .header-gradient { background:linear-gradient(45deg,#4a90e2,#50e3c2); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
     .countdown { font-size:1.2rem; color:#dc3545; font-weight:600; }
     .fee-alert { background:#fff3e0; border-left:4px solid #ff9100; }
@@ -41,7 +40,7 @@
 
   <nav>
     <div class="nav-container">
-      <a href="#" class="btn btn-link text-decoration-none"><i class="fas fa-arrow-left"></i></a>
+      <a id="backBtn" href="javascript:void(0)" class="btn btn-link text-decoration-none"><i class="fas fa-arrow-left"></i></a>
       <h1 class="header-gradient fs-4 m-0">QRIS INSTANT</h1>
     </div>
   </nav>
@@ -51,10 +50,10 @@
       <div class="col-12 col-md-6">
         <div id="formSection" class="card card-custom mb-4">
           <div class="card-body">
-            <form id="paymentForm" novalidate>
+            <form id="paymentForm">
               <div class="mb-3">
                 <label for="nominalInput" class="form-label">Nominal Pembayaran</label>
-                <input type="number" class="form-control" id="nominalInput" min="500" required placeholder="Minimal Rp 500">
+                <input type="number" id="nominalInput" class="form-control" min="500" required placeholder="Minimal Rp 500">
               </div>
               <div class="alert fee-alert mb-3">
                 <small><i class="fas fa-info-circle"></i> Jumlah Ini Belum Termasuk Biaya Admin</small>
@@ -68,30 +67,12 @@
           <div class="card-body text-center">
             <img id="qrImage" src="" class="img-fluid mb-3" alt="QR Code">
             <div class="transaction-details text-start mb-4">
-              <div class="row mb-2">
-                <div class="col-6">ID Transaksi:</div>
-                <div class="col-6 d-flex justify-content-between align-items-center">
-                  <span id="transactionId">-</span>
-                  <button class="btn btn-outline-secondary btn-sm copy-btn" data-copy-target="transactionId"><i class="fas fa-copy"></i></button>
-                </div>
-              </div>
-              <div class="row mb-2">
-                <div class="col-6">Reff ID:</div>
-                <div class="col-6 d-flex justify-content-between align-items-center">
-                  <span id="reffId">-</span>
-                  <button class="btn btn-outline-secondary btn-sm copy-btn" data-copy-target="reffId"><i class="fas fa-copy"></i></button>
-                </div>
-              </div>
-              <div class="row mb-2">
-                <div class="col-6">Biaya:</div>
-                <div class="col-6"><span id="transactionFee" class="fw-bold text-danger">-</span></div>
-              </div>
-              <div class="row mb-3">
-                <div class="col-6">Total Bayar:</div>
-                <div class="col-6"><span id="totalAmount" class="fw-bold text-success">-</span></div>
-              </div>
+              <div class="row mb-2"><div class="col-6">ID Transaksi:</div><div class="col-6 d-flex justify-content-between align-items-center"><span id="transactionId">-</span><button class="btn btn-outline-secondary btn-sm copy-btn" data-copy-target="transactionId"><i class="fas fa-copy"></i></button></div></div>
+              <div class="row mb-2"><div class="col-6">Reff ID:</div><div class="col-6 d-flex justify-content-between align-items-center"><span id="reffId">-</span><button class="btn btn-outline-secondary btn-sm copy-btn" data-copy-target="reffId"><i class="fas fa-copy"></i></button></div></div>
+              <div class="row mb-2"><div class="col-6">Biaya:</div><div class="col-6"><span id="transactionFee" class="fw-bold text-danger">-</span></div></div>
+              <div class="row mb-3"><div class="col-6">Total Bayar:</div><div class="col-6"><span id="totalAmount" class="fw-bold text-success">-</span></div></div>
             </div>
-            <div id="countdown" class="mb-3 countdown"></div>
+            <div id="countdown" class="countdown mb-3"></div>
             <div id="paymentStatus" class="mb-3"></div>
             <button id="cancelBtn" class="btn btn-danger mt-3 me-2"><i class="fas fa-times-circle"></i> Batalkan Pembayaran</button>
             <button id="newTxBtn" class="btn btn-success mt-3" style="display:none;"><i class="fas fa-sync-alt"></i> Transaksi Baru</button>
@@ -103,13 +84,13 @@
 
   <div id="toastContainer"></div>
 
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const API_KEY = 'sk-2CS8Oghs8pH5d8';
-      let paymentData = null;
-      let intervalId = null;
-      let isProcessing = false;
+      let paymentData = null, intervalId = null, isProcessing = false;
 
+      const backBtn = document.getElementById('backBtn');
       const form = document.getElementById('paymentForm');
       const formSection = document.getElementById('formSection');
       const qrContainer = document.getElementById('qrContainer');
@@ -123,151 +104,94 @@
       const cancelBtn = document.getElementById('cancelBtn');
       const newTxBtn = document.getElementById('newTxBtn');
 
-      function showToast(msg, type = 'info') {
+      backBtn.addEventListener('click', endFlow);
+
+      function showToast(msg, type='info') {
         const id = 't' + Date.now();
-        const html = `
-          <div id="${id}" class="toast align-items-center text-white bg-${type} border-0 mb-2" role="alert">
-            <div class="d-flex">
-              <div class="toast-body">${msg}</div>
-              <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-            </div>
-          </div>`;
+        const html = `<div id="${id}" class="toast align-items-center text-white bg-${type} border-0 mb-2" role="alert"><div class="d-flex"><div class="toast-body">${msg}</div><button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div></div>`;
         document.getElementById('toastContainer').insertAdjacentHTML('beforeend', html);
         const toastEl = document.getElementById(id);
         new bootstrap.Toast(toastEl, { delay: 3000 }).show();
         toastEl.addEventListener('hidden.bs.toast', () => toastEl.remove());
       }
 
-      function calculateFee(n) {
-        return Math.ceil(n * 0.014);
-      }
+      function calculateFee(n) { return Math.ceil(n * 0.014); }
 
-      // Copy button handlers
       document.querySelectorAll('.copy-btn').forEach(btn => {
         btn.addEventListener('click', e => {
-          const targetId = e.currentTarget.dataset.copyTarget;
-          const text = document.getElementById(targetId).textContent;
-          navigator.clipboard.writeText(text).then(() => showToast(`Copied: ${text}`, 'success'));
+          const txt = document.getElementById(e.currentTarget.dataset.copyTarget).textContent;
+          navigator.clipboard.writeText(txt).then(() => showToast(`Copied: ${txt}`, 'success'));
         });
       });
 
-      // Form submit
       form.addEventListener('submit', async e => {
         e.preventDefault();
         const nominal = parseInt(document.getElementById('nominalInput').value, 10);
-        if (isNaN(nominal) || nominal < 500) {
-          showToast('Minimal pembayaran Rp 500', 'warning');
-          return;
-        }
+        if (!nominal || nominal < 500) { showToast('Minimal pembayaran Rp 500', 'warning'); return; }
         isProcessing = true;
         form.querySelector('button[type="submit"]').disabled = true;
         showToast('Memproses pembayaran...', 'info');
         try {
-          const response = await fetch('https://forestapi.web.id/api/h2h/deposit/create', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nominal, method: 'QRISFAST', fee_by_customer: 'false', reff_id: 'deposit-vinzz-' + Date.now(), api_key: API_KEY })
+          const res = await fetch('https://forestapi.web.id/api/h2h/deposit/create', {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({ nominal, method:'QRISFAST', fee_by_customer:'false', reff_id:'deposit-vinzz-'+Date.now(), api_key:API_KEY })
           });
-          const data = await response.json();
-          if (data.status === 'success') {
+          const data = await res.json();
+          if (data.status==='success') {
             paymentData = data.data;
+            showQRCode(); startCountdown(); showToast('Berhasil dibuat', 'success');
             localStorage.setItem('vinzzPaymentData', JSON.stringify(paymentData));
-            showQRCode();
-            startCountdown();
-            showToast('Pembayaran berhasil dibuat!', 'success');
-          } else {
-            showToast('Gagal: ' + data.message, 'danger');
-          }
-        } catch (err) {
-          showToast('Error: ' + err.message, 'danger');
-        } finally {
-          isProcessing = false;
-          form.querySelector('button[type="submit"]').disabled = false;
-        }
+          } else showToast('Gagal: '+data.message, 'danger');
+        } catch(err) { showToast('Error: '+err.message, 'danger'); }
+        finally { isProcessing=false; form.querySelector('button[type="submit"]').disabled=false; }
       });
 
-      // Cancel
       cancelBtn.addEventListener('click', async () => {
         if (!paymentData) return;
         showToast('Membatalkan...', 'info');
         try {
-          const res = await fetch('https://forestapi.web.id/api/h2h/deposit/cancel', {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: paymentData.id, api_key: API_KEY })
-          });
+          const res = await fetch('https://forestapi.web.id/api/h2h/deposit/cancel', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ id:paymentData.id, api_key:API_KEY }) });
           const result = await res.json();
-          if (result.status === 'success') {
-            showToast('Pembayaran dibatalkan', 'warning');
-            endFlow();
-          } else {
-            showToast('Gagal membatalkan: ' + result.message, 'danger');
-          }
-        } catch (err) {
-          showToast('Error: ' + err.message, 'danger');
-        }
+          if (result.status==='success') { showToast('Dibatalkan','warning'); endFlow(); } else showToast('Gagal: '+result.message,'danger');
+        } catch(err) { showToast('Error: '+err.message,'danger'); }
       });
 
-      // New transaction
-      newTxBtn.addEventListener('click', () => {
-        endFlow();
-        showToast('Silakan mulai transaksi baru', 'info');
-      });
+      newTxBtn.addEventListener('click', () => { endFlow(); showToast('Transaksi baru', 'info'); });
 
       function showQRCode() {
-        formSection.style.display = 'none';
-        qrContainer.style.display = 'block';
-        qrImage.style.display = paymentData.status === 'pending' ? 'block' : 'none';
+        formSection.style.display='none'; qrContainer.style.display='block';
+        qrImage.style.display = paymentData.status==='pending'?'block':'none';
         txIdEl.textContent = paymentData.id;
         reffIdEl.textContent = paymentData.reff_id;
         feeEl.textContent = 'Rp ' + paymentData.fee.toLocaleString('id-ID');
-        totalEl.textContent = 'Rp ' + (paymentData.nominal + paymentData.fee).toLocaleString('id-ID');
+        totalEl.textContent = 'Rp ' + (paymentData.nominal+paymentData.fee).toLocaleString('id-ID');
         statusEl.innerHTML = `<strong>Status:</strong> <span class="${getStatusClass(paymentData.status)}">${paymentData.status}</span>`;
-        cancelBtn.style.display = paymentData.status === 'pending' ? 'inline-block' : 'none';
-        newTxBtn.style.display = paymentData.status !== 'pending' ? 'inline-block' : 'none';
+        cancelBtn.style.display = paymentData.status==='pending'?'inline-block':'none';
+        newTxBtn.style.display = paymentData.status!=='pending'?'inline-block':'none';
       }
 
       function endFlow() {
-        clearInterval(intervalId);
-        paymentData = null;
-        localStorage.removeItem('vinzzPaymentData');
-        formSection.style.display = 'block';
-        qrContainer.style.display = 'none';
+        clearInterval(intervalId); paymentData=null; localStorage.removeItem('vinzzPaymentData');
+        formSection.style.display='block'; qrContainer.style.display='none';
       }
 
-      function getStatusClass(s) {
-        const key = s.toLowerCase();
-        return key === 'pending' ? 'status-pending' : key === 'success' ? 'status-success' : 'status-failed';
-      }
+      function getStatusClass(s) { const key=s.toLowerCase(); return key==='pending'?'status-pending':key==='success'?'status-success':'status-failed'; }
 
       function startCountdown() {
         const expTime = new Date(paymentData.expired_at).getTime();
         intervalId = setInterval(() => {
-          const now = Date.now();
-          const diff = expTime - now;
-          if (diff <= 0) {
-            clearInterval(intervalId);
-            statusEl.innerHTML = `<strong>Status:</strong> <span class="status-failed">expired</span>`;
-            cancelBtn.style.display = 'none';
-            newTxBtn.style.display = 'inline-block';
-            showToast('Pembayaran kedaluwarsa', 'danger');
-            return;
-          }
-          const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-          const s = Math.floor((diff % (1000 * 60)) / 1000);
+          const diff = expTime - Date.now();
+          if (diff <= 0) { clearInterval(intervalId); statusEl.innerHTML=`<strong>Status:</strong> <span class="status-failed">expired</span>`; cancelBtn.style.display='none'; newTxBtn.style.display='inline-block'; showToast('Kedaluwarsa','danger'); return; }
+          const m = Math.floor((diff % (1000*60*60)) / (1000*60)); const s = Math.floor((diff % (1000*60)) / 1000);
           countdownEl.textContent = `Selesaikan dalam ${m}m ${s}s`;
         }, 1000);
       }
 
-      // Restore pending
       const saved = localStorage.getItem('vinzzPaymentData');
       if (saved) {
         paymentData = JSON.parse(saved);
-        if (new Date(paymentData.expired_at) > new Date()) {
-          showQRCode();
-          startCountdown();
-        } else {
-          localStorage.removeItem('vinzzPaymentData');
-        }
+        if (new Date(paymentData.expired_at) > new Date()) { showQRCode(); startCountdown(); }
+        else localStorage.removeItem('vinzzPaymentData');
       }
     });
   </script>
